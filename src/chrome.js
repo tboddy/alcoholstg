@@ -134,17 +134,25 @@ chrome = {
 
 		drawDebugLabel('DEBUG', true, grid);
 
-		drawDebugLabel('ENEMY', true, grid * 3);
-		drawDebugLabel(enemyCount, false, grid * 3, 'isEnemyCount');
+		drawDebugLabel('TIME', true, grid * 3);
+		drawDebugLabel('0', false, grid * 3, 'isTime');
 
-		drawDebugLabel('SHOT', true, grid * 4);
-		drawDebugLabel(bulletCount, false, grid * 4, 'isBulletCount');
+		drawDebugLabel('ENEMY', true, grid * 4);
+		drawDebugLabel('0', false, grid * 4, 'isEnemyCount');
+
+		drawDebugLabel('SHOT', true, grid * 5);
+		drawDebugLabel('0', false, grid * 5, 'isBulletCount');
+
 
 	},
 
 	updateDebug(child){
 		if(child.isEnemyCount) child.text = String(enemyCount);
 		else if(child.isBulletCount) child.text = String(bulletCount);
+		else if(child.isTime){
+			const lastTime = String(Math.floor(game.ticker.lastTime / 1000));
+			if(child.text != lastTime) child.text = lastTime;
+		}
 		child.x = gameX - child.width - grid;
 	},
 

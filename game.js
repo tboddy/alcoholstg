@@ -48,153 +48,6 @@ sortZIndex = () => {
     return a.zIndex - b.zIndex
 	});
 };
-
-
-
-
-
-
-// let gameClock = 0, 
-
-// const context = document.getElementById('canvas').getContext('2d'), browserWindow = require('electron').remote,
-// 	storage = require('electron-json-storage'), mainWindow = browserWindow.getCurrentWindow(), grid = 16,
-// 	gameWidth = 384, gameHeight = 480,
-
-// colors = {
-// 	dark: '#140c1c',
-// 	purple: '#442434',
-// 	blueLight: '#6dc2ca',
-// 	blue: '#597dce',
-// 	blueDark: '#30346d',
-// 	green: '#6daa2c',
-// 	greenDark: '#346524',
-// 	red: '#d04648',
-// 	peach: '#d2aa99',
-// 	light: '#deeed6',
-// 	purple: '#442434',
-// 	orange: '#d27d2c',
-// 	yellow: '#dad45e'
-// },
-
-// drawRect = (x, y, width, height, color) => {
-// 	context.beginPath();
-// 	context.rect(Math.round(x), Math.round(y), width, height);
-// 	context.fillStyle = color;
-// 	context.fill();
-// },
-
-// drawImage = (img, dx, dy, dWidth, dHeight, rotate) => {
-// 	if(dWidth && dHeight) context.drawImage(img, Math.floor(dx), Math.floor(dy), dWidth, dHeight);
-// 	else context.drawImage(img, Math.floor(dx), Math.floor(dy));
-// },
-
-// drawString = (input, x, y, isAlt) => {
-// 	const size = 9, sizeY = 14;
-// 	const drawChar = (input, x) => {
-// 		let charLeft = 0;
-// 		switch(input){
-// 			case '!': charLeft = size; break;
-// 			case '"': charLeft = size * 2; break;
-// 			case '#': charLeft = size * 3; break;
-// 			case '$': charLeft = size * 4; break;
-// 			case '%': charLeft = size * 4; break;
-// 			case '&': charLeft = size * 5; break;
-// 			case '\'': charLeft = size * 7; break;
-// 			case '(': charLeft = size * 7; break;
-// 			case ')': charLeft = size * 8; break;
-// 			case '*': charLeft = size * 10; break;
-// 			case '+': charLeft = size * 11; break;
-// 			case ',': charLeft = size * 12; break;
-// 			case '-': charLeft = size * 12; break;
-// 			case '.': charLeft = size * 13; break;
-// 			case '/': charLeft = size * 14; break;
-// 			case '0': charLeft = size * 15; break;
-// 			case '1': charLeft = size * 16; break;
-// 			case '2': charLeft = size * 17; break;
-// 			case '3': charLeft = size * 18; break;
-// 			case '4': charLeft = size * 19; break;
-// 			case '5': charLeft = size * 20; break;
-// 			case '6': charLeft = size * 21; break;
-// 			case '7': charLeft = size * 22; break;
-// 			case '8': charLeft = size * 23; break;
-// 			case '9': charLeft = size * 24; break;
-// 			case ':': charLeft = size * 25; break;
-// 			case ';': charLeft = size * 27; break;
-// 			case '<': charLeft = size * 28; break;
-// 			case '=': charLeft = size * 29; break;
-// 			case '>': charLeft = size * 30; break;
-// 			case '?': charLeft = size * 31; break;
-// 			case '@': charLeft = size * 32; break;
-// 			case 'A': charLeft = size * 32; break;
-// 			case 'B': charLeft = size * 33; break;
-// 			case 'C': charLeft = size * 34; break;
-// 			case 'D': charLeft = size * 35; break;
-// 			case 'E': charLeft = size * 36; break;
-// 			case 'F': charLeft = size * 37; break;
-// 			case 'G': charLeft = size * 38; break;
-// 			case 'H': charLeft = size * 39; break;
-// 			case 'I': charLeft = size * 40; break;
-// 			case 'J': charLeft = size * 41; break;
-// 			case 'K': charLeft = size * 42; break;
-// 			case 'L': charLeft = size * 43; break;
-// 			case 'M': charLeft = size * 44; break;
-// 			case 'N': charLeft = size * 45; break;
-// 			case 'O': charLeft = size * 46; break;
-// 			case 'P': charLeft = size * 47; break;
-// 			case 'Q': charLeft = size * 48; break;
-// 			case 'R': charLeft = size * 49; break;
-// 			case 'S': charLeft = size * 50; break;
-// 			case 'T': charLeft = size * 51; break;
-// 			case 'U': charLeft = size * 52; break;
-// 			case 'V': charLeft = size * 53; break;
-// 			case 'W': charLeft = size * 54; break;
-// 			case 'X': charLeft = size * 55; break;
-// 			case 'Y': charLeft = size * 56; break;
-// 			case 'Z': charLeft = size * 57; break;
-// 			case '[': charLeft = size * 58; break;
-// 			case '\\': charLeft = size * 59; break;
-// 			case ']': charLeft = size * 60; break;
-// 			case '^': charLeft = size * 61; break;
-// 			case '_': charLeft = size * 62; break;
-// 			case '`': charLeft = size * 63; break;
-// 			case 'a': charLeft = size * 64; break;
-// 			case 'b': charLeft = size * 65; break;
-// 			case 'c': charLeft = size * 66; break;
-// 			case 'd': charLeft = size * 67; break;
-// 			case 'e': charLeft = size * 68; break;
-// 			case 'f': charLeft = size * 69; break;
-// 			case 'g': charLeft = size * 70; break;
-// 			case 'h': charLeft = size * 71; break;
-// 			case 'i': charLeft = size * 72; break;
-// 			case 'j': charLeft = size * 73; break;
-// 			case 'k': charLeft = size * 74; break;
-// 			case 'l': charLeft = size * 75; break;
-// 			case 'm': charLeft = size * 76; break;
-// 			case 'n': charLeft = size * 77; break;
-// 			case 'o': charLeft = size * 78; break;
-// 			case 'p': charLeft = size * 79; break;
-// 			case 'q': charLeft = size * 80; break;
-// 			case 'r': charLeft = size * 81; break;
-// 			case 's': charLeft = size * 82; break;
-// 			case 't': charLeft = size * 83; break;
-// 			case 'u': charLeft = size * 84; break;
-// 			case 'v': charLeft = size * 85; break;
-// 			case 'w': charLeft = size * 86; break;
-// 			case 'x': charLeft = size * 87; break;
-// 			case 'y': charLeft = size * 88; break;
-// 			case 'z': charLeft = size * 89; break;
-// 			case ' ': charLeft = size * 90; break;
-// 		};
-// 		context.drawImage(images.font, charLeft, 0, size, sizeY, x, y, size, sizeY);
-// 	};
-// 	input.split('').forEach(function(char, i){
-// 		drawChar(char, x + i * size);
-// 	});
-// },
-
-// centerText = str => {
-// 	return gameWidth / 2 - str.length * 9 / 2;
-// };
 let isFullscreen = false;
 
 const toggleFullscreen = () => {
@@ -470,17 +323,25 @@ chrome = {
 
 		drawDebugLabel('DEBUG', true, grid);
 
-		drawDebugLabel('ENEMY', true, grid * 3);
-		drawDebugLabel(enemyCount, false, grid * 3, 'isEnemyCount');
+		drawDebugLabel('TIME', true, grid * 3);
+		drawDebugLabel('0', false, grid * 3, 'isTime');
 
-		drawDebugLabel('SHOT', true, grid * 4);
-		drawDebugLabel(bulletCount, false, grid * 4, 'isBulletCount');
+		drawDebugLabel('ENEMY', true, grid * 4);
+		drawDebugLabel('0', false, grid * 4, 'isEnemyCount');
+
+		drawDebugLabel('SHOT', true, grid * 5);
+		drawDebugLabel('0', false, grid * 5, 'isBulletCount');
+
 
 	},
 
 	updateDebug(child){
 		if(child.isEnemyCount) child.text = String(enemyCount);
 		else if(child.isBulletCount) child.text = String(bulletCount);
+		else if(child.isTime){
+			const lastTime = String(Math.floor(game.ticker.lastTime / 1000));
+			if(child.text != lastTime) child.text = lastTime;
+		}
 		child.x = gameX - child.width - grid;
 	},
 
@@ -658,7 +519,7 @@ collision = {
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'one',
+	nextWave: 'ten',
 
 	waves: {},
 	update: {},
@@ -667,16 +528,25 @@ const enemies = {
 
 	mainUpdate(enemy, i){
 		if(!enemy.zIndex) enemy.zIndex = 30;
-		if(enemy.y >= gameY) enemy.seen = true;
-		if(enemy.seen){
-			if(enemy.y - enemy.height / 2 > gameY + gameHeight || enemy.y < -enemy.height / 2 + gameY ||
-				enemy.x - enemy.width / 2 > gameX + gameWidth || enemy.x + enemy.width / 2 < gameX) game.stage.removeChildAt(i)
+		if(enemy.y >= gameY - enemy.height / 2 &&
+			enemy.x >= gameX - enemy.width / 2 &&
+			enemy.x <= gameX + gameWidth + enemy.width / 2){
+			enemy.seen = true;
 		}
+		if(enemy.seen &&
+			(enemy.y - enemy.height / 2 > gameY + gameHeight ||
+			enemy.y < -enemy.height / 2 + gameY ||
+			enemy.x < gameX - enemy.height / 2 ||
+			enemy.x > gameX + gameWidth + enemy.height / 2)) game.stage.removeChildAt(i)
 	},
 
 	mainBulletUpdate(bullet, i){
 		if(!bullet.zIndex) bullet.zIndex = 40;
-		if(bullet.y >= 0) bullet.seen = true;
+		if(bullet.y >= gameY - bullet.height / 2 &&
+			bullet.x >= gameX - bullet.width / 2 &&
+			bullet.x <= gameX + gameWidth + bullet.width / 2){
+			bullet.seen = true;
+		}
 		if(bullet.seen){
 			if(bullet.y > gameY + gameHeight + bullet.height / 2 ||
 				bullet.y < gameY - bullet.height / 2 ||
@@ -694,10 +564,179 @@ const enemies = {
 	}
 
 };
+enemies.waves.seven = () => {
+	const size = 36, yOffset = gameHeight * .75, spawnEnemy = (x, y, opposite) => {
+		enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
+		enemy.anchor.set(0.5);
+		enemy.x = gameX + x;
+		enemy.y = (gameY - size / 2) - y;
+		enemy.isEnemy = true;
+		enemy.type = 'seven';
+		enemy.speed = 3.5;
+		enemy.health = 40;
+		enemy.score = 8210;
+		enemy.speedDiff = 0.04;
+		enemy.opposite = opposite;
+		game.stage.addChild(enemy);
+	};
+	spawnEnemy(gameWidth / 5, 0, false);
+	spawnEnemy(gameWidth / 5 * 2, yOffset, true);
+	spawnEnemy(gameWidth / 5 * 3, yOffset * 2, false);
+	spawnEnemy(gameWidth / 5 * 4, yOffset * 3, true);
+	enemies.nextWave = 'eight';
+};
+
+enemies.update.seven = enemy => {
+	if(enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedDiff;
+	if(enemy.speed <= 0 && !enemy.fired) waveSevenBullet(enemy);
+	enemy.y += enemy.speed >= 0 ? enemy.speed : enemy.speed / 2;
+};
+
+const waveSevenBullet = enemy => {
+	enemy.fired = true;
+	const bulletX = enemy.x, bulletY = enemy.y, count = 20, timeout = 1 / 3,
+	spawnBullets = () => {
+		if(enemy.y < winHeight){
+			let angle = 0;
+			for(i = 0; i < count; i++){
+				const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png';
+				const bullet = PIXI.Sprite.fromImage(img);
+				bullet.anchor.set(0.5);
+				bullet.x = bulletX;
+				bullet.y = bulletY;
+				bullet.isEnemyBullet = true;
+				bullet.speed = 3.25;
+				bullet.zIndex = 30;
+				bullet.type = 'seven';
+				bullet.angleDiff = 0.015;
+				bullet.angle = angle;
+				bullet.opposite = enemy.opposite;
+				game.stage.addChild(bullet);
+				angle += Math.PI / count * 2;
+			}
+		}
+	}
+	spawnBullets();
+	PIXI.setTimeout(timeout, spawnBullets);
+	PIXI.setTimeout(timeout * 2, spawnBullets);
+};
+
+enemies.bulletUpdate.seven = bullet => {
+	bullet.velocity = {x: -Math.cos(bullet.angle), y: -Math.sin(bullet.angle)};
+	bullet.x += bullet.velocity.x * bullet.speed;
+	bullet.y += bullet.velocity.y * bullet.speed;
+	bullet.angle += bullet.opposite ? -bullet.angleDiff : bullet.angleDiff;
+};
+const waveSixLine = (initialX, opposite, yOffset) => {
+	const size = 36;
+	let count = -.5;
+	const spawnEnemy = () => {
+		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
+		enemy.anchor.set(0.5);
+		enemy.x = initialX;
+		enemy.y = (gameY - size / 2) - i * (size + 4);
+		if(opposite) enemy.y -= gameHeight;
+		if(yOffset) enemy.y -= yOffset
+		enemy.isEnemy = true;
+		enemy.type = 'six';
+		enemy.speed = {x: 1.25, y: 2.5};
+		enemy.opposite = opposite;
+		enemy.health = 0;
+		enemy.count = count;
+		enemy.alcohol = true;
+		enemy.score = 1000;
+		enemy.speedDiff = 0.01;
+		count -= .25;
+		game.stage.addChild(enemy);
+	}
+	for(i = 0; i < 5; i++) spawnEnemy();
+},
+waveSixDrop = x => {
+	const size = 36, enemy = PIXI.Sprite.fromImage('img/enemy-two.png');
+	enemy.anchor.set(0.5);
+	enemy.isEnemy = true;
+	enemy.type = 'sixDrop';
+	enemy.y = gameY - size / 2;
+	enemy.x = x;
+	enemy.speed = 4.5;
+	enemy.speedDiff = 0.05;
+	enemy.health = 40;
+	enemy.score = 6250;
+	enemy.zIndex = 31;
+	game.stage.addChild(enemy);
+},
+waveSixDropBullet = (enemy, opposite) => {
+	const bulletX = enemy.x, bulletY = enemy.y;
+	const count = 4, spawnBullets = angle => {
+		if(enemy.y < winHeight){
+			for(i = 0; i < count; i++){
+				const bullet = PIXI.Sprite.fromImage('img/bullet-pink.png');
+				bullet.anchor.set(0.5);
+				bullet.x = bulletX;
+				bullet.y = bulletY;
+				bullet.isEnemyBullet = true;
+				bullet.speed = 4;
+				bullet.zIndex = 30;
+				bullet.type = 'fiveDrop';
+				bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
+				game.stage.addChild(bullet);
+				angle += Math.PI / count * 2;
+			}
+		}
+	};
+	const initAngle = opposite ? Math.PI / count : 0;
+	spawnBullets(initAngle);
+}
+
+enemies.waves.six = () => {
+	const lineOffset = -grid , dropOffset = grid * 3, lineDiff = grid * 3;
+
+	waveSixLine(gameX + gameWidth - lineOffset);
+	waveSixLine(gameX + gameWidth - lineOffset - lineDiff, false, 12);
+
+	waveSixLine(gameX + lineOffset, true);
+	waveSixLine(gameX + lineOffset + lineDiff, true);
+
+	waveSixDrop(gameX + dropOffset);
+	waveSixDrop(gameX + gameWidth - dropOffset);
+
+	enemies.nextWave = 'seven';
+};
+
+enemies.update.six = enemy => {
+	if(enemy.y >= gameY - enemy.height / 2){
+		enemy.x += enemy.opposite ? -Math.sin(enemy.count) : Math.sin(enemy.count);
+		enemy.x += enemy.opposite ? enemy.speed.x : -enemy.speed.x;
+		enemy.count -= 90 / 180 * Math.PI / (grid * 4.5);
+		enemy.rotation = (enemy.opposite ? Math.cos(enemy.count - 1) : -Math.cos(enemy.count - 1)) / 4;
+	}
+	enemy.y += enemy.speed.y;
+};
+
+enemies.update.sixDrop = enemy => {
+	enemy.y += enemy.speed;
+	enemy.rotation += 0.02;
+	if(enemy.flipped){
+		if(enemy.done) enemy.speed -= enemy.speedDiff;
+		else {
+			if(enemy.speed != 0) enemy.speed = 0;
+			if(enemy.doneClock){
+				const limit = 60 * 4, mod = 2;
+				if(enemy.doneClock < limit / 2 && enemy.doneClock % mod == 0) waveSixDropBullet(enemy);
+				else if(enemy.doneClock >= limit / 2 && enemy.doneClock < limit && enemy.doneClock % mod == 0) waveSixDropBullet(enemy, true);
+				if(enemy.doneClock >= limit) enemy.done = true;
+				enemy.doneClock++;
+			} else enemy.doneClock = 1;
+		}
+	} else {
+		if(enemy.speed <= 0) enemy.flipped = true;
+		enemy.speed -= enemy.speedDiff;
+	}
+}
 const levelOneFirstWave = (initialX, opposite) => {
 	let count = 0;
 	const spawnEnemy = i => {
-		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png'), size = 34;
+		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png'), size = 36;
 		enemy.anchor.set(0.5);
 		enemy.x = initialX;
 		enemy.initialX = initialX;
@@ -713,7 +752,6 @@ const levelOneFirstWave = (initialX, opposite) => {
 		game.stage.addChild(enemy);
 		count -= .5;
 	}
-	// spawnEnemy();
 	for(i = 0; i < 8; i++) spawnEnemy(i);
 };
 
@@ -735,129 +773,226 @@ enemies.update.one = enemy => {
 	enemy.y += enemy.speed;
 	enemy.rotation = (enemy.opposite ? -Math.cos(enemy.count) : Math.cos(enemy.count)) / 2
 };
+const waveTen = opposite => {
+	const size = 36, spawnEnemy = i => {
+		const enemy = PIXI.Sprite.fromImage('img/enemy-two.png');
+		enemy.anchor.set(0.5);
+		enemy.isEnemy = true;
+		enemy.type = 'ten';
+		enemy.speed = 3.5;
+		enemy.x = gameX + gameWidth / 6 * (i + 1) + (8 * i) - grid;
+		if(opposite) enemy.x = gameX + gameWidth - (gameWidth / 6 * (i + 1) + (8 * i) - grid)
+		enemy.y = gameY - size / 2 - size * i;
+		enemy.score = 12000;
+		enemy.speedDiff = 0.05;
+		enemy.health = 50;
+		enemy.zIndex = 31;
+		enemy.dropClock = 0;
+		enemy.dropLimit = 60 * 3;
+		game.stage.addChild(enemy);
+	};
+	for(i = 0; i < 4; i++) spawnEnemy(i);
+},
 
-enemies.update.oneTwo = enemy => {
-	enemy.x += enemy.opposite ? -Math.sin(enemy.count) : Math.sin(enemy.count); 
-	enemy.count += 90 / 180 * Math.PI / (grid * 5);
+waveTenUpdate = enemy => {
 	enemy.y += enemy.speed;
-	enemy.rotation = (enemy.opposite ? Math.cos(enemy.count - 1) : -Math.cos(enemy.count - 1)) / 2;
+	if(enemy.flipped){
+		if(enemy.dropClock >= enemy.dropLimit) enemy.speed -= enemy.speedDiff
+		else {
+			if(enemy.speed != 0) enemy.speed = 0;
+			if(enemy.dropClock % 2 == 0) waveTenBullet(enemy);
+		}
+		enemy.dropClock++;
+	} else {
+		if(enemy.speed <= 0) enemy.flipped = true;
+		else if(enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedDiff;
+	}
+	enemy.rotation += 0.02;
 };
 
+enemies.waves.ten = () => {
+	waveTen();
+	enemies.nextWave = 'eleven';
+};
 
-const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
-	const size = 34;
-	let count = -.75;
-	const spawnEnemy = (index, id) => {
-		const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
+enemies.waves.eleven = () => {
+	waveTen(true);
+	enemies.nextWave = 'ten';
+};
+
+enemies.update.ten = enemy => {
+	waveTenUpdate(enemy);
+};
+
+const waveTenBullet = enemy => {
+	const limit = enemy.dropLimit / 3
+	const img = enemy.dropClock < limit ? 'img/bullet-blue.png' : 'img/bullet-blue-big.png';
+	const spawnBullet = offset => {
+		const bullet = PIXI.Sprite.fromImage(img);
+		bullet.anchor.set(0.5);
+		bullet.x = enemy.x;
+		if(offset) bullet.x += offset;
+		bullet.y = enemy.y;
+		bullet.isEnemyBullet = true;
+		bullet.speed = 5;
+		bullet.zIndex = 30;
+		bullet.type = 'ten';
+		game.stage.addChild(bullet);
+	};
+	if(enemy.dropClock < limit) spawnBullet();
+	else {
+		spawnBullet(4);
+		spawnBullet(-4);
+	}
+};
+
+enemies.bulletUpdate.ten = bullet => {
+	bullet.y += bullet.speed;
+}
+const eightLine = (opposite, yOffset) => {
+	const size = 36;
+	let count = -.5;
+	const spawnEnemy = index => {
+		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
 		enemy.anchor.set(0.5);
-		enemy.x = initialX;
-		enemy.y = (gameY - size / 2) - i * (size + 4);
-		if(yOffset) enemy.y -= yOffset;
+		enemy.x = opposite ? gameX + gameWidth + size / 2 : gameX - size / 2;
+		const offset = (size + 4) * index;
+		enemy.x += opposite ? offset : -offset;
+		enemy.y = gameY + gameHeight / 2;
+		if(yOffset){
+			enemy.yOffset = (size + grid) * yOffset;
+			enemy.y -= enemy.yOffset;
+		}
 		enemy.isEnemy = true;
-		enemy.type = 'oneTwo';
-		enemy.speed = 3;
+		enemy.type = 'eight';
+		enemy.speed = {y: 2, x: 2.5};
 		enemy.opposite = opposite;
 		enemy.health = 0;
 		enemy.count = count;
 		enemy.alcohol = true;
 		enemy.score = 1000;
-		count -= .5;
+		enemy.speedDiff = 0.02;
+		count -= .25;
 		game.stage.addChild(enemy);
 	}
-	for(i = 0; i < 8; i++) spawnEnemy(i, 'a');
+	for(i = 0; i < 8; i++) spawnEnemy(i);
 },
 
-levelOneFirstWaveDrop = x => {
-	const size = 46, enemy = PIXI.Sprite.fromImage('img/enemy-two.png');
+eightDrop = opposite => {
+	const enemy = PIXI.Sprite.fromImage('img/enemy-three.png');
 	enemy.anchor.set(0.5);
-	enemy.x = x;
-	enemy.y = gameY - size / 2 - grid * 15;
 	enemy.isEnemy = true;
-	enemy.type = 'oneDrop';
-	enemy.speedInit = 4;
-	enemy.speed = enemy.speedInit;
-	enemy.speedMod = 0.06;
-	enemy.zIndex = 35;
-	enemy.health = 20;
-	enemy.score = 5500;
+	enemy.type = 'eightDrop';
+	enemy.speed = {x: 2.25, y: 0};
+	enemy.x = opposite ? gameX - enemy.width / 2 : gameX + gameWidth + enemy.width / 2;
+	enemy.y = gameY + grid * 6;
+	enemy.score = 9020;
+	enemy.dropClock = 0;
+	enemy.speedDiff = 0.025;
+	enemy.dropLimit = 60;
+	enemy.health = 30;
+	enemy.zIndex = 32;
+	if(opposite) enemy.opposite = true;
 	game.stage.addChild(enemy);
 },
 
-levelOneFirstWaveDropBullet = enemy => {
-	enemy.fired = true;
-	let angle = false;
-	const doBullet = dir => {
-		const bullet = PIXI.Sprite.fromImage('img/bullet-blue-big.png');
-		bullet.anchor.set(0.5);
-		bullet.x = enemy.x;
-		bullet.y = enemy.y;
-		bullet.isEnemyBullet = true;
-		if(!angle) angle = getAngle(bullet, player.data);
-		let tempAngle = angle;
-		const angleDiff = 1 / 3;
-		if(dir){
-			switch(dir){
-				case 'left':
-					tempAngle += angleDiff;
-					break;
-				case 'leftB':
-					tempAngle += angleDiff * 2;
-					break;
-				case 'right':
-					tempAngle -= angleDiff;
-					break;
-				case 'rightB':
-					tempAngle -= angleDiff * 2;
-					break;
-			}
+eightUpdate = enemy => {
+	enemy.x += enemy.opposite ? -enemy.speed.x : enemy.speed.x;
+	let limit = gameY + gameHeight - grid * 6;
+	if(enemy.yOffset) limit -= enemy.yOffset;
+	if(enemy.x >= gameX - enemy.width / 2 && enemy.x <= gameX + gameWidth + enemy.width / 2){
+		if(enemy.y >= limit && !enemy.flipped) enemy.flipped = true;
+		enemy.y += enemy.flipped ? -enemy.speed.y : enemy.speed.y;
+		enemy.speed.x += enemy.flipped ? enemy.speedDiff : -enemy.speedDiff;
+	}
+	enemy.rotation = getAngle(enemy, {x: winWidth / 2, y: winHeight}) / 2
+	enemy.rotation += Math.PI / 4;
+},
+
+eightDropUpdate = enemy => {
+	if(enemy.dropClock){
+		enemy.y -= enemy.speed.y;
+		if(!enemy.fired) waveEightBullet(enemy);
+		if(enemy.dropClock >= enemy.dropLimit){
+			enemy.speed.y += enemy.speedDiff;
 		}
-		bullet.speed = 6;
-		bullet.speedMin = bullet.speed / 3;
-		bullet.speedDiff = 0.1;
-		bullet.velocity = {x: -Math.cos(tempAngle), y: -Math.sin(tempAngle)};
-		bullet.type = 'oneDrop';
-		bullet.zIndex = 34;
-		game.stage.addChild(bullet);
+		enemy.dropClock++;
+	} else {
+		enemy.x += enemy.opposite ? enemy.speed.x : -enemy.speed.x;
+		enemy.speed.x -= enemy.speedDiff;
+		if(enemy.speed.x <= 0) enemy.dropClock = 1;
 	}
-	doBullet();
-	doBullet('left');
-	doBullet('leftB');
-	doBullet('right');
-	doBullet('rightB');
+	enemy.rotation = Math.cos(getAngle(enemy, player.data));
 };
 
-enemies.waves.three = () => {
-	const x = grid * 9, size = 34;
-	levelOneFirstWaveTwo(gameX + x);
-	levelOneFirstWaveTwo(gameX + x + size + 4, false, 8);
-	levelOneFirstWaveDrop(gameX + gameWidth - grid * 5);
-	enemies.nextWave = 'four';
+enemies.waves.eight = () => {
+	eightLine();
+	eightLine(false, 1);
+	eightDrop();
+	enemies.nextWave = 'nine';
 };
 
-enemies.waves.four = () => {
-	const x = gameWidth - grid * 9, size = 34;
-	levelOneFirstWaveTwo(gameX + x, true);
-	levelOneFirstWaveTwo(gameX + x - size + 4, true, 8);
-	levelOneFirstWaveDrop(gameX + grid * 5);
-	enemies.nextWave = 'five';
+enemies.waves.nine = () => {
+	eightLine(true);
+	eightLine(true, 1);
+	eightDrop(true);
+	enemies.nextWave = 'ten';
 };
 
-enemies.update.oneDrop = enemy => {
-	enemy.y += enemy.speed;
-	if(enemy.y >= gameY - enemy.height / 2){
-		enemy.speed -= enemy.fired ? enemy.speedMod / 4 : enemy.speedMod;
-		enemy.rotation += 0.02;
-		if(!enemy.fired && enemy.speed <= -0.5) levelOneFirstWaveDropBullet(enemy);
+enemies.update.eight = enemy => {
+	eightUpdate(enemy);
+};
+
+enemies.update.eightDrop = enemy => {
+	eightDropUpdate(enemy);
+};
+
+const waveEightBullet = enemy => {
+	enemy.fired = true;
+	let angle = getAngle(enemy, player.data) - Math.PI / 6;
+	const bulletX = enemy.x, bulletY = enemy.y, timeout = .05, count = 5, speed = 3;
+	spawnBullets = () => {
+		if(enemy.y < winHeight){
+			for(i = 0; i < count; i++){
+				const bullet = PIXI.Sprite.fromImage('img/bullet-pink-big.png');
+				bullet.anchor.set(0.5);
+				bullet.x = bulletX;
+				bullet.y = bulletY;
+				bullet.isEnemyBullet = true;
+				bullet.velocity = {x: -Math.cos(angle) * (speed * .8), y: -Math.sin(angle) * (speed * .8)};
+				bullet.zIndex = 30;
+				bullet.type = 'eight';
+				game.stage.addChild(bullet);
+				angle += enemy.opposite ? -(Math.PI / count * 2) : Math.PI / count * 2;
+			}
+			angle += enemy.opposite ? -(Math.PI / count / 4) : Math.PI / count / 4;
+		}
 	}
+	for(i = 0; i < 8; i++) PIXI.setTimeout(timeout * i, spawnBullets);
+	PIXI.setTimeout(timeout * 2, () => {
+		let oAngle = getAngle(enemy, player.data);
+		const spawnOBullet = () => {
+			if(enemy.y < winHeight){
+				const bullet = PIXI.Sprite.fromImage('img/bullet-blue-big.png');
+				bullet.anchor.set(0.5);
+				bullet.x = enemy.x;
+				bullet.y = enemy.y;
+				bullet.isEnemyBullet = true;
+				let iAngle = oAngle - Math.PI / 2 + Math.random() * Math.PI;
+				bullet.velocity = {x: -Math.cos(iAngle) * speed, y: -Math.sin(iAngle) * speed};
+				bullet.zIndex = 31;
+				bullet.type = 'eight';
+				game.stage.addChild(bullet);
+			}
+		};
+		for(i = 0; i < 30; i++) PIXI.setTimeout((timeout) * i, spawnOBullet);
+	})
 };
 
-enemies.bulletUpdate.oneDrop = bullet => {
-	bullet.x += bullet.velocity.x * bullet.speed;
-	bullet.y += bullet.velocity.y * bullet.speed;
-	if(bullet.speed > bullet.speedMin) bullet.speed -= bullet.speedDiff;
-	else if(bullet.speed < bullet.speedMin) bullet.speed = bullet.speedMin;
+enemies.bulletUpdate.eight = bullet => {
+	bullet.y += bullet.velocity.y;
+	bullet.x += bullet.velocity.x;
 };
-
 const levelOneFifthWave = () => {
 	const spawnEnemy = i => {
 		const enemy = PIXI.Sprite.fromImage('img/enemy-three.png'), size = 36;
@@ -927,7 +1062,7 @@ enemies.waves.five = () => {
 	levelOneFifthWave();
 	levelOneFifthDrop(gameX + gameWidth - grid * 4.5, gameY - size / 2 - grid * 5);
 	levelOneFifthDrop(gameX + grid * 4.5, gameY - size / 2 - grid * 30, true);
-	enemies.nextWave = 'one';
+	enemies.nextWave = 'six';
 };
 
 enemies.update.five = enemy => {
@@ -946,107 +1081,137 @@ enemies.bulletUpdate.fiveDrop = bullet => {
 	bullet.x += bullet.velocity.x * bullet.speed;
 	bullet.y += bullet.velocity.y * bullet.speed;
 };
-// enemies.waves.four = () => {
-// 	const enemy = PIXI.Sprite.fromImage('img/enemy-two.png');
-// 	enemy.type = 'four';
-// 	enemy.isEnemy = true;
-// 	enemy.anchor.set(0.5);
-// 	enemy.initialX = grid * 4;
-// 	enemy.initialY = -grid * 4 - enemy.height / 2;
-// 	enemy.x = enemy.initialX;
-// 	enemy.y = enemy.initialY;
-// 	enemy.initialSpeedY = 2;
-// 	enemy.speedY = enemy.initialSpeedY;
-// 	enemy.speedX = 0;
-// 	enemy.speedYDiff = 0.075;
-// 	enemy.speedXDiff = 0.075;
-// 	enemy.count = 90;
-// 	game.stage.addChild(enemy);
-// };
+const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
+	const size = 36;
+	let count = -.75;
+	const spawnEnemy = (index, id) => {
+		const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
+		enemy.anchor.set(0.5);
+		enemy.x = initialX;
+		enemy.y = (gameY - size / 2) - i * (size + 4);
+		if(yOffset) enemy.y -= yOffset;
+		enemy.isEnemy = true;
+		enemy.type = 'oneTwo';
+		enemy.speed = 3;
+		enemy.opposite = opposite;
+		enemy.health = 0;
+		enemy.count = count;
+		enemy.alcohol = true;
+		enemy.score = 1000;
+		count -= .5;
+		game.stage.addChild(enemy);
+	}
+	for(i = 0; i < 8; i++) spawnEnemy(i, 'a');
+},
 
-// enemies.update.four = enemy => {
-// 	const increase = 90 / (360 * 2) * Math.PI / grid;
-// 	if(enemy.y >= gameHeight / 4){
-// 		// enemy.x = enemy.initialX - Math.sin(enemy.count) * (grid * 9);
-// 		// enemy.y = enemy.initialY - Math.cos(enemy.count) * (grid * 9);
-// 		// enemy.count += increase;
-// 		// enemy.anchor.set(5, 5)
-// 		// enemy.pivot.set(0, 100);
-// 		// enemy.rotation -= 0.05
-// 	} else {
-// 		enemy.y += enemy.speedY
-// 	}
-// 	// enemy.x += enemy.speedX;
-// 	// enemy.speedY -= enemy.speedYDiff;
-// 	// if(enemy.x < gameWidth / 2){
-// 	// 	enemy.speedX += enemy.speedXDiff;
-// 	// } else {
-// 	// 	enemy.speedX -= enemy.speedXDiff;
-// 	// }
-// };
+levelOneFirstWaveDrop = x => {
+	const size = 36, enemy = PIXI.Sprite.fromImage('img/enemy-two.png');
+	enemy.anchor.set(0.5);
+	enemy.x = x;
+	enemy.y = gameY - size / 2 - grid * 15;
+	enemy.isEnemy = true;
+	enemy.type = 'oneDrop';
+	enemy.speedInit = 4;
+	enemy.speed = enemy.speedInit;
+	enemy.speedMod = 0.06;
+	enemy.zIndex = 35;
+	enemy.health = 20;
+	enemy.score = 5500;
+	game.stage.addChild(enemy);
+},
 
-// enemies.bulletUpdate.four = bullet => {
+levelOneFirstWaveDropBullet = enemy => {
+	enemy.fired = true;
+	let angle = false;
+	const doBullet = dir => {
+		const bullet = PIXI.Sprite.fromImage('img/bullet-blue-big.png');
+		bullet.anchor.set(0.5);
+		bullet.x = enemy.x;
+		bullet.y = enemy.y;
+		bullet.isEnemyBullet = true;
+		if(!angle) angle = getAngle(bullet, player.data);
+		let tempAngle = angle;
+		const angleDiff = 1 / 3;
+		if(dir){
+			switch(dir){
+				case 'left':
+					tempAngle += angleDiff;
+					break;
+				case 'leftB':
+					tempAngle += angleDiff * 2;
+					break;
+				case 'right':
+					tempAngle -= angleDiff;
+					break;
+				case 'rightB':
+					tempAngle -= angleDiff * 2;
+					break;
+			}
+		}
+		bullet.speed = 6;
+		bullet.speedMin = bullet.speed / 3;
+		bullet.speedDiff = 0.1;
+		bullet.velocity = {x: -Math.cos(tempAngle), y: -Math.sin(tempAngle)};
+		bullet.type = 'oneDrop';
+		bullet.zIndex = 34;
+		game.stage.addChild(bullet);
+	}
+	doBullet();
+	doBullet('left');
+	doBullet('leftB');
+	doBullet('right');
+	doBullet('rightB');
+};
 
-// };
+enemies.waves.three = () => {
+	const x = grid * 9, size = 36;
+	levelOneFirstWaveTwo(gameX + x);
+	levelOneFirstWaveTwo(gameX + x + size + 4, false, -4);
+	levelOneFirstWaveTwo(gameX + x + size * 2 + 8, false, -8);
+	levelOneFirstWaveDrop(gameX + gameWidth - grid * 5);
+	enemies.nextWave = 'four';
+};
 
+enemies.waves.four = () => {
+	const x = gameWidth - grid * 9, size = 36;
+	levelOneFirstWaveTwo(gameX + x, true);
+	levelOneFirstWaveTwo(gameX + x - size + 4, true, -4);
+	levelOneFirstWaveTwo(gameX + x - size * 2 + 8, true, -8);
+	levelOneFirstWaveDrop(gameX + grid * 5);
+	enemies.nextWave = 'five';
+};
 
-// 	// initialY = -34;
-// 	// enemy.anchor.set(0.5);
-// 	// enemy.x = initialX;
-// 	// enemy.y = yOffset ? initialY - yOffset : initialY;
-// 	// enemy.isEnemy = true;
-// 	// enemy.zIndex = 6;
-// 	// enemy.initialSpeedY = 5;
-// 	// enemy.speedY = enemy.initialSpeedY;
-// 	// enemy.triggerY = grid * 3;
-// 	// enemy.speedDiff = 0.15;
-// 	// enemy.type = type;
-// 	// game.stage.addChild(enemy);
+enemies.update.oneTwo = enemy => {
+	enemy.x += enemy.opposite ? -Math.sin(enemy.count) : Math.sin(enemy.count); 
+	enemy.count += 90 / 180 * Math.PI / (grid * 5);
+	enemy.y += enemy.speed;
+	enemy.rotation = (enemy.opposite ? Math.cos(enemy.count - 1) : -Math.cos(enemy.count - 1)) / 2;
+};
 
+enemies.update.oneDrop = enemy => {
+	enemy.y += enemy.speed;
+	if(enemy.y >= gameY - enemy.height / 2){
+		enemy.speed -= enemy.fired ? enemy.speedMod / 4 : enemy.speedMod;
+		enemy.rotation += 0.02;
+		if(!enemy.fired && enemy.speed <= -0.5) levelOneFirstWaveDropBullet(enemy);
+	}
+};
 
-
-
-// 	// if(enemy.y > enemy.triggerY && !enemy.triggered) enemy.triggered = true
-// 	// if(enemy.triggered) enemy.speedY -= enemy.speedDiff;
-// 	// else enemy.speedY = Math.round(enemy.speedY);
-// 	// enemy.y += enemy.speedY;
-// 	// const angle = getAngle(enemy, player.data);
-// 	// enemy.rotation = angle + Math.PI / 2
-// 	// if(Math.ceil(enemy.speedY) == 0 && !enemy.shot) enemies.bulletSpawn.one(enemy);
-
-// // levelOneFirstBulletSpawn = (enemy, type) => {
-// // 	enemy.shot = true;
-// // 	let angle = false;
-// // 	const doBullet = dir => {
-// // 		const bullet = PIXI.Sprite.fromImage('img/bullet-blue-big.png');
-// // 		bullet.x = enemy.x;
-// // 		bullet.y = enemy.y;
-// // 		bullet.isEnemyBullet = true;
-// // 		bullet.anchor.set(0.5);
-// // 		bullet.zIndex = 5;
-// // 		bullet.speed = 3.5;
-// // 		if(!angle) angle = getAngle(bullet, player.data);
-// // 		let tempAngle = angle;
-// // 		const angleDiff = 1 / 3;
-// // 		if(dir) tempAngle += dir == 'left' ? angleDiff : -angleDiff;
-// // 		bullet.speedX = -Math.cos(tempAngle);
-// // 		bullet.speedY = -Math.sin(tempAngle);
-// // 		bullet.type = type;
-// // 		game.stage.addChild(bullet);
-// // 	}
-// // 	doBullet();
-// // 	doBullet('left');
-// // 	doBullet('right');
-// // },
-
-// // levelOneFirstBulletUpdate = bullet => {
-// // 	bullet.x += bullet.speedX * bullet.speed;
-// // 	bullet.y += bullet.speedY * bullet.speed;
-// // 	if(bullet.speed > 2) bullet.speed -= 0.02;
-// // };
+enemies.bulletUpdate.oneDrop = bullet => {
+	bullet.x += bullet.velocity.x * bullet.speed;
+	bullet.y += bullet.velocity.y * bullet.speed;
+	if(bullet.speed > bullet.speedMin) bullet.speed -= bullet.speedDiff;
+	else if(bullet.speed < bullet.speedMin) bullet.speed = bullet.speedMin;
+};
 const player = {
 
 	data: PIXI.Sprite.fromImage('img/player.png'),
+
+	// ended up not liking the float for this game, but at least it's in now
+	// floatLeft: PIXI.Sprite.fromImage('img/player-float-left.png'),
+	// floatRight: PIXI.Sprite.fromImage('img/player-float-left.png'),
+	
+	floatOffset: grid * 2.5,
 
 	spawnBullet(type){
 
@@ -1165,6 +1330,12 @@ const player = {
 			else if(player.data.x > gameWidth - player.data.width / 2 + gameX) player.data.x = gameWidth - player.data.width / 2 + gameX;
 			if(player.data.y < player.data.height / 2 + gameY) player.data.y = player.data.height / 2 + gameY;
 			else if(player.data.y > gameHeight - player.data.height / 2 + gameY) player.data.y = gameHeight - player.data.height / 2 + gameY;
+
+			// player.floatLeft.x = player.data.x - player.floatOffset; 
+			// player.floatLeft.y = player.data.y;
+			// player.floatRight.x = player.data.x + player.floatOffset; 
+			// player.floatRight.y = player.data.y;
+
 		},
 
 		shoot = () => {
@@ -1235,6 +1406,19 @@ const player = {
 		player.data.chainLimit = 60 * 1.5;
 		player.data.punk = 1;
 		game.stage.addChild(player.data);
+
+		// player.floatLeft.anchor.set(0.5);
+		// player.floatLeft.x = player.data.x - player.floatOffset;
+		// player.floatLeft.y = player.data.y;
+		// player.floatLeft.zIndex = 21;
+		// game.stage.addChild(player.floatLeft);
+
+		// player.floatRight.anchor.set(0.5);
+		// player.floatRight.x = player.data.x + player.floatOffset;
+		// player.floatRight.y = player.data.y;
+		// player.floatRight.zIndex = 21;
+		// game.stage.addChild(player.floatRight);
+
 		game.ticker.add(player.update);
 	}
 

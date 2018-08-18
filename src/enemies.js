@@ -1,7 +1,7 @@
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'one',
+	nextWave: 'ten',
 
 	waves: {},
 	update: {},
@@ -10,16 +10,25 @@ const enemies = {
 
 	mainUpdate(enemy, i){
 		if(!enemy.zIndex) enemy.zIndex = 30;
-		if(enemy.y >= gameY) enemy.seen = true;
-		if(enemy.seen){
-			if(enemy.y - enemy.height / 2 > gameY + gameHeight || enemy.y < -enemy.height / 2 + gameY ||
-				enemy.x - enemy.width / 2 > gameX + gameWidth || enemy.x + enemy.width / 2 < gameX) game.stage.removeChildAt(i)
+		if(enemy.y >= gameY - enemy.height / 2 &&
+			enemy.x >= gameX - enemy.width / 2 &&
+			enemy.x <= gameX + gameWidth + enemy.width / 2){
+			enemy.seen = true;
 		}
+		if(enemy.seen &&
+			(enemy.y - enemy.height / 2 > gameY + gameHeight ||
+			enemy.y < -enemy.height / 2 + gameY ||
+			enemy.x < gameX - enemy.height / 2 ||
+			enemy.x > gameX + gameWidth + enemy.height / 2)) game.stage.removeChildAt(i)
 	},
 
 	mainBulletUpdate(bullet, i){
 		if(!bullet.zIndex) bullet.zIndex = 40;
-		if(bullet.y >= 0) bullet.seen = true;
+		if(bullet.y >= gameY - bullet.height / 2 &&
+			bullet.x >= gameX - bullet.width / 2 &&
+			bullet.x <= gameX + gameWidth + bullet.width / 2){
+			bullet.seen = true;
+		}
 		if(bullet.seen){
 			if(bullet.y > gameY + gameHeight + bullet.height / 2 ||
 				bullet.y < gameY - bullet.height / 2 ||

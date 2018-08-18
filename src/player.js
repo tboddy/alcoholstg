@@ -2,6 +2,12 @@ const player = {
 
 	data: PIXI.Sprite.fromImage('img/player.png'),
 
+	// ended up not liking the float for this game, but at least it's in now
+	// floatLeft: PIXI.Sprite.fromImage('img/player-float-left.png'),
+	// floatRight: PIXI.Sprite.fromImage('img/player-float-left.png'),
+	
+	floatOffset: grid * 2.5,
+
 	spawnBullet(type){
 
 		const bullet = PIXI.Sprite.fromImage('img/bullet.png');
@@ -119,6 +125,12 @@ const player = {
 			else if(player.data.x > gameWidth - player.data.width / 2 + gameX) player.data.x = gameWidth - player.data.width / 2 + gameX;
 			if(player.data.y < player.data.height / 2 + gameY) player.data.y = player.data.height / 2 + gameY;
 			else if(player.data.y > gameHeight - player.data.height / 2 + gameY) player.data.y = gameHeight - player.data.height / 2 + gameY;
+
+			// player.floatLeft.x = player.data.x - player.floatOffset; 
+			// player.floatLeft.y = player.data.y;
+			// player.floatRight.x = player.data.x + player.floatOffset; 
+			// player.floatRight.y = player.data.y;
+
 		},
 
 		shoot = () => {
@@ -189,6 +201,19 @@ const player = {
 		player.data.chainLimit = 60 * 1.5;
 		player.data.punk = 1;
 		game.stage.addChild(player.data);
+
+		// player.floatLeft.anchor.set(0.5);
+		// player.floatLeft.x = player.data.x - player.floatOffset;
+		// player.floatLeft.y = player.data.y;
+		// player.floatLeft.zIndex = 21;
+		// game.stage.addChild(player.floatLeft);
+
+		// player.floatRight.anchor.set(0.5);
+		// player.floatRight.x = player.data.x + player.floatOffset;
+		// player.floatRight.y = player.data.y;
+		// player.floatRight.zIndex = 21;
+		// game.stage.addChild(player.floatRight);
+
 		game.ticker.add(player.update);
 	}
 
