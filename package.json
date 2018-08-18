@@ -1,0 +1,21 @@
+{
+  "name": "final",
+  "version": "0.0.1",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron-json-storage": "^2.1.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "pixi.js": "*"
+  },
+  "devDependencies": {
+    "electron": "^1.4.1"
+  }
+}
