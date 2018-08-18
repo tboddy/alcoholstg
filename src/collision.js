@@ -100,6 +100,10 @@ collision = {
 							bullet.y = -gameHeight;
 							collision.sects[i][j].enemy = false;
 							collision.sects[i][j].bullet = false;
+							player.data.chain++;
+							player.data.chainTime = 0;
+							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
+							if(enemy.score) currentScore += enemy.score * player.data.punk;
 						}
 					}
 				}

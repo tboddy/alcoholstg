@@ -12,6 +12,8 @@ const levelOneFirstWave = (initialX, opposite) => {
 		enemy.opposite = opposite;
 		enemy.count = count;
 		enemy.health = 0;
+		enemy.alcohol = true;
+		enemy.score = 1000;
 		game.stage.addChild(enemy);
 		count -= .5;
 	}
@@ -50,7 +52,7 @@ const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
 	const size = 34;
 	let count = -.75;
 	const spawnEnemy = (index, id) => {
-		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
+		const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
 		enemy.anchor.set(0.5);
 		enemy.x = initialX;
 		enemy.y = (gameY - size / 2) - i * (size + 4);
@@ -61,6 +63,8 @@ const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
 		enemy.opposite = opposite;
 		enemy.health = 0;
 		enemy.count = count;
+		enemy.alcohol = true;
+		enemy.score = 1000;
 		count -= .5;
 		game.stage.addChild(enemy);
 	}
@@ -78,7 +82,8 @@ levelOneFirstWaveDrop = x => {
 	enemy.speed = enemy.speedInit;
 	enemy.speedMod = 0.06;
 	enemy.zIndex = 35;
-	enemy.health = 30;
+	enemy.health = 20;
+	enemy.score = 5500;
 	game.stage.addChild(enemy);
 },
 
@@ -129,7 +134,6 @@ enemies.waves.three = () => {
 	const x = grid * 9, size = 34;
 	levelOneFirstWaveTwo(gameX + x);
 	levelOneFirstWaveTwo(gameX + x + size + 4, false, 8);
-	levelOneFirstWaveTwo(gameX + x + size * 2 + 8, false, 16);
 	levelOneFirstWaveDrop(gameX + gameWidth - grid * 5);
 	enemies.nextWave = 'four';
 };
@@ -138,7 +142,6 @@ enemies.waves.four = () => {
 	const x = gameWidth - grid * 9, size = 34;
 	levelOneFirstWaveTwo(gameX + x, true);
 	levelOneFirstWaveTwo(gameX + x - size + 4, true, 8);
-	levelOneFirstWaveTwo(gameX + x - size * 2 + 8, true, 16);
 	levelOneFirstWaveDrop(gameX + grid * 5);
 	enemies.nextWave = 'five';
 };
@@ -159,7 +162,6 @@ enemies.bulletUpdate.oneDrop = bullet => {
 	else if(bullet.speed < bullet.speedMin) bullet.speed = bullet.speedMin;
 };
 
-
 const levelOneFifthWave = () => {
 	const spawnEnemy = i => {
 		const enemy = PIXI.Sprite.fromImage('img/enemy-three.png'), size = 36;
@@ -171,14 +173,15 @@ const levelOneFifthWave = () => {
 		enemy.health = 0;
 		const angle = getAngle(enemy, player.data), speed = 3;
 		enemy.speed = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
-		enemy.rotation = Math.cos(angle)
+		enemy.rotation = Math.cos(angle);
+		enemy.score = 1250;
 		game.stage.addChild(enemy);
 	};
-	for(i = 0; i < 10; i++) spawnEnemy(i);
+	for(i = 0; i < 8; i++) spawnEnemy(i);
 },
 
 levelOneFifthDrop = (x, y, opposite) => {
-	const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
+	const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
 	enemy.anchor.set(0.5);
 	enemy.isEnemy = true;
 	enemy.type = 'fiveDrop';
@@ -189,27 +192,32 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
 	enemy.health = 30;
+	enemy.score = 7575;
+	enemy.alcohol = true;
 	game.stage.addChild(enemy);
 },
 
 levelOneFifthDropBullet = enemy => {
 	enemy.fired = true;
+	const bulletX = enemy.x, bulletY = enemy.y;
 	const count = 20, timeout = .4, spawnBullets = angle => {
-		for(i = 0; i < count; i++){
-			const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
-			const bullet = PIXI.Sprite.fromImage(img);
-			bullet.anchor.set(0.5);
-			bullet.x = enemy.x;
-			bullet.y = enemy.y;
-			bullet.isEnemyBullet = true;
-			bullet.speed = 2;
-			bullet.type = 'fiveDrop';
-			bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
-			game.stage.addChild(bullet);
-			angle += Math.PI / count * 2;
+		if(enemy.y < winHeight){
+			for(i = 0; i < count; i++){
+				const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
+				const bullet = PIXI.Sprite.fromImage(img);
+				bullet.anchor.set(0.5);
+				bullet.x = bulletX;
+				bullet.y = bulletY;
+				bullet.isEnemyBullet = true;
+				bullet.speed = 2.5;
+				bullet.type = 'fiveDrop';
+				bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
+				game.stage.addChild(bullet);
+				angle += Math.PI / count * 2;
+			}
 		}
 	};
-	spawnBullets(0)
+	spawnBullets(0);
 	PIXI.setTimeout(timeout, () => {
 		spawnBullets(Math.PI / count);
 	});

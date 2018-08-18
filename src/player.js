@@ -175,8 +175,8 @@ const player = {
 		player.data.shotClock = 0;
 		player.data.shotIntervalInit = 8;
 		player.data.shotInterval = player.data.shotIntervalInit;
-		player.data.punk = 1;
-		player.data.drunk = 20;
+		player.data.drunk = 0;
+		player.data.drunkDiff = 1;
 		player.data.anchor.set(0.5);
 		player.data.x = gameWidth / 2 + gameX;
 		player.data.y = gameHeight - grid * 3 + gameY;
@@ -184,6 +184,10 @@ const player = {
 		player.data.lives = 3;
 		player.data.bombs = 2;
 		player.data.skewOffset = 0.1;
+		player.data.chain = 0;
+		player.data.chainTime = 0;
+		player.data.chainLimit = 60 * 1.5;
+		player.data.punk = 1;
 		game.stage.addChild(player.data);
 		game.ticker.add(player.update);
 	}

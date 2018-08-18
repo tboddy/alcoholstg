@@ -20,6 +20,9 @@ const mainLoop = () => {
 			bulletCount++;
 			// collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
+		else if(child.isDrunk) chrome.updateDrunk(child);
+		else if(child.isScore) chrome.updateScore(child);
+		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);

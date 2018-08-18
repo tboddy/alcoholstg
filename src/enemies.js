@@ -1,7 +1,7 @@
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'five',
+	nextWave: 'one',
 
 	waves: {},
 	update: {},

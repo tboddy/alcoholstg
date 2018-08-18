@@ -10,11 +10,12 @@ sidebarWidth = (winWidth - gameWidth) / 2,
 
 chrome = {
 
-	drawLabel(input, x, y, color){
+	drawLabel(input, x, y, type){
 		const label = new PIXI.extras.BitmapText(input, {font: '12px crass'});
 		label.x = x ? gameX + gameWidth + grid : winWidth - label.width - grid;
 		label.y = y;
 		label.zIndex = 101;
+		if(type) label[type] = true;
 		game.stage.addChild(label);
 	},
 
@@ -23,7 +24,7 @@ chrome = {
 			chrome.drawLabel('HI', true, grid );
 			chrome.drawLabel(processScore(highScore), false, grid);
 			chrome.drawLabel('SC', true, grid * 2);
-			chrome.drawLabel(processScore(currentScore), false, grid * 2);
+			chrome.drawLabel(processScore(currentScore), false, grid * 2, 'isScore');
 		}, drawLives = () => {
 			let str = '';
 			for(i = 0; i < player.data.lives - 1; i++) str += 'X'
@@ -35,14 +36,11 @@ chrome = {
 			chrome.drawLabel('bomb', true, grid * 5);
 			chrome.drawLabel(str, false, grid * 5);
 		}, drawPunk = () => {
-			let str = String(player.data.punk) + 'X';
 			chrome.drawLabel('punk', true, grid * 7);
-			chrome.drawLabel(str, false, grid * 7);
+			chrome.drawLabel('1X', false, grid * 7, 'isPunk');
 		}, drawDrunk = () => {
-			let str = String((player.data.drunk / 100 * 4).toFixed(2));
-			if(player.data.drunk >= 100) str = 'max';
 			chrome.drawLabel('drunk', true, grid * 8);
-			chrome.drawLabel(str, false, grid * 8);
+			chrome.drawLabel('0.00', false, grid * 8, 'isDrunk');
 		}
 		drawScore();
 		drawLives();
@@ -87,6 +85,37 @@ chrome = {
 			}
 			label.didDo = true;
 		} else if(label.didDo) label.didDo = false;
+	},
+
+	updateDrunk(label){
+		const str = player.data.drunk >= 100 ? 'MAX' : String((player.data.drunk / 100 * 4).toFixed(2));
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
+	updatePunk(label){
+		player.data.punk = 1;
+		if(player.data.chain >= 5 && player.data.chain < 15) player.data.punk = 2;
+		else if(player.data.chain >= 15 && player.data.chain < 30) player.data.punk = 3;
+		else if(player.data.chain >= 30) player.data.punk = 4;
+		if(label.text != player.data.punk + 'X'){
+			label.text = player.data.punk + 'X';
+			label.x = winWidth - label.width - grid;
+		}
+		if(player.data.chainTime >= player.data.chainLimit && player.data.chain){
+			player.data.chain = 0;
+		}
+		player.data.chainTime++;
+	},
+
+	updateScore(label){
+		const str = processScore(currentScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
 	},
 
 	drawDebug(){
@@ -138,62 +167,3 @@ chrome = {
 	}
 
 };
-
-
-
-
-// drawStats = () => {
-// 	const playerStyle = fontStyle(), bombStyle = fontStyle();
-// 	playerStyle.fill = colors.red;
-// 	bombStyle.fill = colors.blue;
-// 	const playerLabel = new PIXI.Text('***', playerStyle),
-// 		bombLabel = new PIXI.Text('**', bombStyle);
-// 	playerLabel.x = gameWidth - playerLabel.text.length * 8 - grid;
-// 	playerLabel.y = grid - 3;
-// 	playerLabel.zIndex = 100;
-// 	bombLabel.x = gameWidth - bombLabel.text.length * 8 - grid;
-// 	bombLabel.y = grid * 2 - 3;
-// 	bombLabel.zIndex = 100;
-// 	game.stage.addChild(playerLabel);
-// 	game.stage.addChild(bombLabel);
-// },
-
-// drawBar = barY => {
-// 	const barWidth = gameWidth / 4,  barShadow = new PIXI.Graphics(), bar = new PIXI.Graphics(), barIn = new PIXI.Graphics(),
-// 		barHeight = grid - 4;
-
-// 	barShadow.beginFill(0x140c1c);
-// 	barShadow.lineStyle(0);
-// 	barShadow.drawRect(gameWidth / 2 - barWidth / 2, barY + 1, barWidth, barHeight);
-// 	barShadow.endFill();
-// 	barShadow.zIndex = 99;
-
-// 	bar.beginFill(0x442434);
-// 	bar.lineStyle(0);
-// 	bar.drawRect(gameWidth / 2 - barWidth / 2, barY, barWidth, barHeight);
-// 	bar.endFill();
-// 	bar.zIndex = 100;
-
-// 	barIn.beginFill(0x140c1c);
-// 	barIn.lineStyle(0);
-// 	barIn.drawRect(gameWidth / 2 - barWidth / 2 + 1, barY + 1, barWidth - 2, barHeight - 2);
-// 	barIn.endFill();
-// 	barIn.zIndex = 101;
-
-// 	game.stage.addChild(barShadow);
-// 	game.stage.addChild(bar);
-// 	game.stage.addChild(barIn);
-// },
-
-// drawGraze = () => {
-// 	drawBar(grid);
-// },
-
-// drawBoss = () => {
-// 	drawBar(grid * 2);
-// }
-
-// drawScore();
-// drawStats();
-// drawGraze();
-// drawBoss();

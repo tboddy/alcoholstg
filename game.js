@@ -346,11 +346,12 @@ sidebarWidth = (winWidth - gameWidth) / 2,
 
 chrome = {
 
-	drawLabel(input, x, y, color){
+	drawLabel(input, x, y, type){
 		const label = new PIXI.extras.BitmapText(input, {font: '12px crass'});
 		label.x = x ? gameX + gameWidth + grid : winWidth - label.width - grid;
 		label.y = y;
 		label.zIndex = 101;
+		if(type) label[type] = true;
 		game.stage.addChild(label);
 	},
 
@@ -359,7 +360,7 @@ chrome = {
 			chrome.drawLabel('HI', true, grid );
 			chrome.drawLabel(processScore(highScore), false, grid);
 			chrome.drawLabel('SC', true, grid * 2);
-			chrome.drawLabel(processScore(currentScore), false, grid * 2);
+			chrome.drawLabel(processScore(currentScore), false, grid * 2, 'isScore');
 		}, drawLives = () => {
 			let str = '';
 			for(i = 0; i < player.data.lives - 1; i++) str += 'X'
@@ -371,14 +372,11 @@ chrome = {
 			chrome.drawLabel('bomb', true, grid * 5);
 			chrome.drawLabel(str, false, grid * 5);
 		}, drawPunk = () => {
-			let str = String(player.data.punk) + 'X';
 			chrome.drawLabel('punk', true, grid * 7);
-			chrome.drawLabel(str, false, grid * 7);
+			chrome.drawLabel('1X', false, grid * 7, 'isPunk');
 		}, drawDrunk = () => {
-			let str = String((player.data.drunk / 100 * 4).toFixed(2));
-			if(player.data.drunk >= 100) str = 'max';
 			chrome.drawLabel('drunk', true, grid * 8);
-			chrome.drawLabel(str, false, grid * 8);
+			chrome.drawLabel('0.00', false, grid * 8, 'isDrunk');
 		}
 		drawScore();
 		drawLives();
@@ -423,6 +421,37 @@ chrome = {
 			}
 			label.didDo = true;
 		} else if(label.didDo) label.didDo = false;
+	},
+
+	updateDrunk(label){
+		const str = player.data.drunk >= 100 ? 'MAX' : String((player.data.drunk / 100 * 4).toFixed(2));
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
+	updatePunk(label){
+		player.data.punk = 1;
+		if(player.data.chain >= 5 && player.data.chain < 15) player.data.punk = 2;
+		else if(player.data.chain >= 15 && player.data.chain < 30) player.data.punk = 3;
+		else if(player.data.chain >= 30) player.data.punk = 4;
+		if(label.text != player.data.punk + 'X'){
+			label.text = player.data.punk + 'X';
+			label.x = winWidth - label.width - grid;
+		}
+		if(player.data.chainTime >= player.data.chainLimit && player.data.chain){
+			player.data.chain = 0;
+		}
+		player.data.chainTime++;
+	},
+
+	updateScore(label){
+		const str = processScore(currentScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
 	},
 
 	drawDebug(){
@@ -474,65 +503,6 @@ chrome = {
 	}
 
 };
-
-
-
-
-// drawStats = () => {
-// 	const playerStyle = fontStyle(), bombStyle = fontStyle();
-// 	playerStyle.fill = colors.red;
-// 	bombStyle.fill = colors.blue;
-// 	const playerLabel = new PIXI.Text('***', playerStyle),
-// 		bombLabel = new PIXI.Text('**', bombStyle);
-// 	playerLabel.x = gameWidth - playerLabel.text.length * 8 - grid;
-// 	playerLabel.y = grid - 3;
-// 	playerLabel.zIndex = 100;
-// 	bombLabel.x = gameWidth - bombLabel.text.length * 8 - grid;
-// 	bombLabel.y = grid * 2 - 3;
-// 	bombLabel.zIndex = 100;
-// 	game.stage.addChild(playerLabel);
-// 	game.stage.addChild(bombLabel);
-// },
-
-// drawBar = barY => {
-// 	const barWidth = gameWidth / 4,  barShadow = new PIXI.Graphics(), bar = new PIXI.Graphics(), barIn = new PIXI.Graphics(),
-// 		barHeight = grid - 4;
-
-// 	barShadow.beginFill(0x140c1c);
-// 	barShadow.lineStyle(0);
-// 	barShadow.drawRect(gameWidth / 2 - barWidth / 2, barY + 1, barWidth, barHeight);
-// 	barShadow.endFill();
-// 	barShadow.zIndex = 99;
-
-// 	bar.beginFill(0x442434);
-// 	bar.lineStyle(0);
-// 	bar.drawRect(gameWidth / 2 - barWidth / 2, barY, barWidth, barHeight);
-// 	bar.endFill();
-// 	bar.zIndex = 100;
-
-// 	barIn.beginFill(0x140c1c);
-// 	barIn.lineStyle(0);
-// 	barIn.drawRect(gameWidth / 2 - barWidth / 2 + 1, barY + 1, barWidth - 2, barHeight - 2);
-// 	barIn.endFill();
-// 	barIn.zIndex = 101;
-
-// 	game.stage.addChild(barShadow);
-// 	game.stage.addChild(bar);
-// 	game.stage.addChild(barIn);
-// },
-
-// drawGraze = () => {
-// 	drawBar(grid);
-// },
-
-// drawBoss = () => {
-// 	drawBar(grid * 2);
-// }
-
-// drawScore();
-// drawStats();
-// drawGraze();
-// drawBoss();
 
 const collisionWidth = 11, collisionHeight = 14,
 
@@ -636,6 +606,10 @@ collision = {
 							bullet.y = -gameHeight;
 							collision.sects[i][j].enemy = false;
 							collision.sects[i][j].bullet = false;
+							player.data.chain++;
+							player.data.chainTime = 0;
+							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
+							if(enemy.score) currentScore += enemy.score * player.data.punk;
 						}
 					}
 				}
@@ -684,7 +658,7 @@ collision = {
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'five',
+	nextWave: 'one',
 
 	waves: {},
 	update: {},
@@ -734,6 +708,8 @@ const levelOneFirstWave = (initialX, opposite) => {
 		enemy.opposite = opposite;
 		enemy.count = count;
 		enemy.health = 0;
+		enemy.alcohol = true;
+		enemy.score = 1000;
 		game.stage.addChild(enemy);
 		count -= .5;
 	}
@@ -772,7 +748,7 @@ const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
 	const size = 34;
 	let count = -.75;
 	const spawnEnemy = (index, id) => {
-		const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
+		const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
 		enemy.anchor.set(0.5);
 		enemy.x = initialX;
 		enemy.y = (gameY - size / 2) - i * (size + 4);
@@ -783,6 +759,8 @@ const levelOneFirstWaveTwo = (initialX, opposite, yOffset) => {
 		enemy.opposite = opposite;
 		enemy.health = 0;
 		enemy.count = count;
+		enemy.alcohol = true;
+		enemy.score = 1000;
 		count -= .5;
 		game.stage.addChild(enemy);
 	}
@@ -800,7 +778,8 @@ levelOneFirstWaveDrop = x => {
 	enemy.speed = enemy.speedInit;
 	enemy.speedMod = 0.06;
 	enemy.zIndex = 35;
-	enemy.health = 30;
+	enemy.health = 20;
+	enemy.score = 5500;
 	game.stage.addChild(enemy);
 },
 
@@ -851,7 +830,6 @@ enemies.waves.three = () => {
 	const x = grid * 9, size = 34;
 	levelOneFirstWaveTwo(gameX + x);
 	levelOneFirstWaveTwo(gameX + x + size + 4, false, 8);
-	levelOneFirstWaveTwo(gameX + x + size * 2 + 8, false, 16);
 	levelOneFirstWaveDrop(gameX + gameWidth - grid * 5);
 	enemies.nextWave = 'four';
 };
@@ -860,7 +838,6 @@ enemies.waves.four = () => {
 	const x = gameWidth - grid * 9, size = 34;
 	levelOneFirstWaveTwo(gameX + x, true);
 	levelOneFirstWaveTwo(gameX + x - size + 4, true, 8);
-	levelOneFirstWaveTwo(gameX + x - size * 2 + 8, true, 16);
 	levelOneFirstWaveDrop(gameX + grid * 5);
 	enemies.nextWave = 'five';
 };
@@ -881,7 +858,6 @@ enemies.bulletUpdate.oneDrop = bullet => {
 	else if(bullet.speed < bullet.speedMin) bullet.speed = bullet.speedMin;
 };
 
-
 const levelOneFifthWave = () => {
 	const spawnEnemy = i => {
 		const enemy = PIXI.Sprite.fromImage('img/enemy-three.png'), size = 36;
@@ -893,14 +869,15 @@ const levelOneFifthWave = () => {
 		enemy.health = 0;
 		const angle = getAngle(enemy, player.data), speed = 3;
 		enemy.speed = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
-		enemy.rotation = Math.cos(angle)
+		enemy.rotation = Math.cos(angle);
+		enemy.score = 1250;
 		game.stage.addChild(enemy);
 	};
-	for(i = 0; i < 10; i++) spawnEnemy(i);
+	for(i = 0; i < 8; i++) spawnEnemy(i);
 },
 
 levelOneFifthDrop = (x, y, opposite) => {
-	const enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
+	const enemy = PIXI.Sprite.fromImage('img/enemy-one.png');
 	enemy.anchor.set(0.5);
 	enemy.isEnemy = true;
 	enemy.type = 'fiveDrop';
@@ -911,27 +888,32 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
 	enemy.health = 30;
+	enemy.score = 7575;
+	enemy.alcohol = true;
 	game.stage.addChild(enemy);
 },
 
 levelOneFifthDropBullet = enemy => {
 	enemy.fired = true;
+	const bulletX = enemy.x, bulletY = enemy.y;
 	const count = 20, timeout = .4, spawnBullets = angle => {
-		for(i = 0; i < count; i++){
-			const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
-			const bullet = PIXI.Sprite.fromImage(img);
-			bullet.anchor.set(0.5);
-			bullet.x = enemy.x;
-			bullet.y = enemy.y;
-			bullet.isEnemyBullet = true;
-			bullet.speed = 2;
-			bullet.type = 'fiveDrop';
-			bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
-			game.stage.addChild(bullet);
-			angle += Math.PI / count * 2;
+		if(enemy.y < winHeight){
+			for(i = 0; i < count; i++){
+				const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
+				const bullet = PIXI.Sprite.fromImage(img);
+				bullet.anchor.set(0.5);
+				bullet.x = bulletX;
+				bullet.y = bulletY;
+				bullet.isEnemyBullet = true;
+				bullet.speed = 2.5;
+				bullet.type = 'fiveDrop';
+				bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
+				game.stage.addChild(bullet);
+				angle += Math.PI / count * 2;
+			}
 		}
 	};
-	spawnBullets(0)
+	spawnBullets(0);
 	PIXI.setTimeout(timeout, () => {
 		spawnBullets(Math.PI / count);
 	});
@@ -1239,8 +1221,8 @@ const player = {
 		player.data.shotClock = 0;
 		player.data.shotIntervalInit = 8;
 		player.data.shotInterval = player.data.shotIntervalInit;
-		player.data.punk = 1;
-		player.data.drunk = 20;
+		player.data.drunk = 0;
+		player.data.drunkDiff = 1;
 		player.data.anchor.set(0.5);
 		player.data.x = gameWidth / 2 + gameX;
 		player.data.y = gameHeight - grid * 3 + gameY;
@@ -1248,6 +1230,10 @@ const player = {
 		player.data.lives = 3;
 		player.data.bombs = 2;
 		player.data.skewOffset = 0.1;
+		player.data.chain = 0;
+		player.data.chainTime = 0;
+		player.data.chainLimit = 60 * 1.5;
+		player.data.punk = 1;
 		game.stage.addChild(player.data);
 		game.ticker.add(player.update);
 	}
@@ -1275,6 +1261,9 @@ const mainLoop = () => {
 			bulletCount++;
 			// collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
+		else if(child.isDrunk) chrome.updateDrunk(child);
+		else if(child.isScore) chrome.updateScore(child);
+		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);
