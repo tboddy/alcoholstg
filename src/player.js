@@ -159,8 +159,16 @@ const player = {
 			} else if(player.data.shotClock) player.data.shotClock = 0;
 		};
 
-		move();
-		shoot();
+
+		if(gameOver){
+			if(wonGame){
+				player.data.y -= player.data.speed;
+				player.data.speed += 0.15;
+			}
+		} else {
+			move();
+			shoot();
+		}
 
 	},
 

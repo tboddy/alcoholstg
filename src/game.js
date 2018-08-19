@@ -31,6 +31,11 @@ const mainLoop = () => {
 
 	if(enemyCount == 0 && lastEnemyCount == 0 && !bossData) enemies.init();
 	lastEnemyCount = enemyCount;
+
+	if(gameOver && !drewGameOver){
+		chrome.drawGameOver();
+	}
+
 	sortZIndex();
 },
 

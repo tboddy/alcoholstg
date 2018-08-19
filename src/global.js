@@ -1,4 +1,4 @@
-let currentScore = 0, highScore = 0, bossData = false;
+let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false;
 
 const winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32, grid = 16, gameX = (winWidth - gameWidth) / 2,
 	gameY = grid, browserWindow = require('electron').remote, mainWindow = browserWindow.getCurrentWindow(),

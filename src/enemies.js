@@ -1,7 +1,7 @@
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'one',
+	nextWave: 'bossTwo',
 
 	waves: {},
 	update: {},
@@ -31,10 +31,7 @@ const enemies = {
 		}
 		if(bullet.seen){
 			if(bullet.y > gameY + gameHeight + bullet.height / 2 ||
-				bullet.y < gameY - bullet.height / 2 ||
-				bullet.x < gameX - bullet.width / 2 ||
-				bullet.x > gameX + gameWidth + bullet.width / 2)
-				game.stage.removeChildAt(i);
+				bullet.y < gameY - bullet.height / 2 || bullet.x < 0 || bullet.x > winWidth) game.stage.removeChildAt(i);
 		}
 	},
 
@@ -42,6 +39,9 @@ const enemies = {
 		if(enemies.nextWave){
 			enemies.currentWave = enemies.nextWave;
 			enemies.waves[enemies.currentWave]();
+		} else {
+			wonGame = true;
+			gameOver = true;
 		}
 	}
 

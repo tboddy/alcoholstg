@@ -1,3 +1,5 @@
+let drewGameOver = false;
+
 const fontStyle = () => {
 	return new PIXI.TextStyle({
 		fill: colors.light,
@@ -164,6 +166,28 @@ chrome = {
 		logo.y = winHeight - grid * 7;
 		logo.zIndex = 101;
 		game.stage.addChild(logo);
+	},
+
+	drawGameOver(){
+		drewGameOver = true;
+		const main = () => {
+			const label = new PIXI.extras.BitmapText('game over', {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 - 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
+		}, won = () => {
+			const str = wonGame ? 'you won' : 'you lost';
+			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 + 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
+		};
+		main();
+		won();
 	},
 
 	init(){

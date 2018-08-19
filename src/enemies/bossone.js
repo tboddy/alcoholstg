@@ -7,8 +7,8 @@ enemies.waves.bossOne = () => {
 	enemy.y = gameY - size / 2;
 	enemy.score = 100000;
 	enemy.isBoss = true;
-	bossData = true;
 	enemy.health = 300;
+	bossData = enemy.health;
 	enemy.zIndex = 35;
 	enemy.zIndex = 51;
 	enemy.speed = 2.65;

@@ -42,7 +42,7 @@ enemies.waves.ten = () => {
 
 enemies.waves.eleven = () => {
 	waveTen(true);
-	enemies.nextWave = 'one';
+	enemies.nextWave = 'bossTwo';
 };
 
 enemies.update.ten = enemy => {
