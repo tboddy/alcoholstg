@@ -3,8 +3,7 @@ a short alcoholic cruster danmaku stg made from scratch in 48 hours for hardcore
 
 * arrow keys: move
 * z: shoot
-* x: bomb
-* shift: slow
+* x: slow
 * f: toggle fullscreen
 * r: return to title
 * esc: quit

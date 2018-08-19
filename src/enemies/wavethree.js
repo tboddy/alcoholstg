@@ -27,7 +27,7 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speed = 3;
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
-	enemy.health = 6;
+	enemy.health = 15;
 	enemy.score = 7575;
 	enemy.alcohol = true;
 	game.stage.addChild(enemy);
@@ -51,6 +51,7 @@ levelOneFifthDropBullet = enemy => {
 				game.stage.addChild(bullet);
 				angle += Math.PI / count * 2;
 			}
+			spawnSound.bulletTwo();
 		}
 	};
 	spawnBullets(0);

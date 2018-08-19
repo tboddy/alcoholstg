@@ -11,7 +11,7 @@ const levelOneFirstWave = (initialX, opposite) => {
 		enemy.speed = 2.75;
 		enemy.opposite = opposite;
 		enemy.count = count;
-		enemy.health = 0;
+		enemy.health = 1;
 		enemy.alcohol = true;
 		enemy.score = 1000;
 		game.stage.addChild(enemy);

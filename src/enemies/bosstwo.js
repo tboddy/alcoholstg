@@ -1,5 +1,5 @@
 enemies.waves.bossTwo = () => {
-	const enemy = PIXI.Sprite.fromImage('img/boss-one.png'), size = 76;
+	const enemy = PIXI.Sprite.fromImage('img/boss-two.png'), size = 76;
 	enemy.anchor.set(0.5);
 	enemy.isEnemy = true;
 	enemy.type = 'bossTwo';
@@ -7,17 +7,18 @@ enemies.waves.bossTwo = () => {
 	enemy.y = gameY - size / 2;
 	enemy.score = 100000;
 	enemy.isBoss = true;
-	enemy.health = 100;
+	enemy.health = 400;
 	bossData = enemy.health;
 	enemy.zIndex = 30.05;
 	enemy.speed = 2.65;
 	enemy.speedDiff = 0.03;
 	enemy.clock = 0;
 	enemy.intervalA = 60 * 7;
-	enemy.intervalB = 60 * 5;
-	enemy.intervalC = 60 * 5;
+	enemy.intervalB = 60 * 6;
+	enemy.intervalC = 60 * 6;
 	game.stage.addChild(enemy);
 	enemies.nextWave = false;
+	spawnSound.bgmFour()
 };
 
 enemies.update.bossTwo = enemy => {
@@ -34,6 +35,7 @@ enemies.update.bossTwo = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
+	// enemy.rotation = 0
 };
 
 const bossTwoCardOne = enemy => {
@@ -58,6 +60,7 @@ const bossTwoCardOne = enemy => {
 				bullet.type = 'bossTwoCardOne';
 				game.stage.addChild(bullet);
 			}
+			spawnSound.bulletTwo()
 		}
 	}, razor = () => {
 		const dirClock = enemy.intervalA / 10, count = 5;
@@ -70,6 +73,7 @@ const bossTwoCardOne = enemy => {
 					bullet.isEnemyBullet = true;
 					bullet.x = enemy.x;
 					bullet.y = enemy.y;
+					bullet.zIndex = 29;
 					const speed = 2;
 					bullet.velocity = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
 					if(enemy.clock >= dirClock && enemy.clock < dirClock * 2 ||
@@ -89,6 +93,7 @@ const bossTwoCardOne = enemy => {
 				});
 				oAngle += Math.PI / (count / 4);
 			}
+			spawnSound.bulletTwo()
 		}
 	};
 	gravitySpray();
@@ -105,8 +110,8 @@ enemies.bulletUpdate.bossTwoCardOne = bullet => {
 };
 
 const bossTwoCardTwo = (enemy, isAlt) => {
-	const sec = 60, lasers = () => {
-		const angle = getAngle(enemy, {x: isAlt ? gameX + gameWidth : gameX, y: gameY + gameHeight});
+	const angleObj = {x: isAlt ? gameX + gameWidth : gameX, y: gameY + gameHeight}
+	const angle = getAngle(enemy, angleObj), sec = 60, lasers = () => {
 		const fire = (x, y, angleOffset) => {
 			const bullet = PIXI.Sprite.fromImage('img/bullet-pink-big.png');
 			bullet.altTex = PIXI.Texture.fromImage('img/bullet-pink.png');
@@ -127,21 +132,19 @@ const bossTwoCardTwo = (enemy, isAlt) => {
 		};
 		if(enemy.clock % 3 == 0){
 			const offset = grid * 1.5;
-
 			const lOffsetA = isAlt ? enemy.x + offset : enemy.x - offset,
 				lOffsetB = isAlt ? enemy.x - offset : enemy.x + offset;
-
 			fire(lOffsetA, enemy.y - offset, -2);
 			fire(lOffsetA, enemy.y - offset, -1);
 			fire(lOffsetA, enemy.y - offset, 0);
 			fire(lOffsetA, enemy.y - offset, 1);
 			fire(lOffsetA, enemy.y - offset, 2);
-
 			fire(lOffsetB, enemy.y + offset, 2);
 			fire(lOffsetB, enemy.y + offset, 1);
 			fire(lOffsetB, enemy.y + offset, 0);
 			fire(lOffsetB, enemy.y + offset, -1);
 			fire(lOffsetB, enemy.y + offset, -2);
+			spawnSound.bulletThree()
 		}
 	};
 	let limitA = enemy.intervalA + sec, limitB = enemy.intervalA + enemy.intervalB - sec;
@@ -185,8 +188,10 @@ const bossTwoCardThree = enemy => {
 	};
 	if(enemy.clock % interval == 0){
 		circle(enemy.x - offset);
+		spawnSound.bulletOne()
 	} else if(enemy.clock % interval == interval / 2){
 		circle(enemy.x + offset, true);
+		spawnSound.bulletOne()
 	}
 };
 

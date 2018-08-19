@@ -8,7 +8,7 @@ enemies.waves.seven = () => {
 		enemy.type = 'seven';
 		enemy.speed = 3.5;
 		enemy.alcohol = true
-		enemy.health = 6;
+		enemy.health = 22;
 		enemy.score = 8210;
 		enemy.speedDiff = 0.04;
 		enemy.opposite = opposite;
@@ -19,6 +19,7 @@ enemies.waves.seven = () => {
 	spawnEnemy(gameWidth / 5 * 3, yOffset * 2, false);
 	spawnEnemy(gameWidth / 5 * 4, yOffset * 3, true);
 	enemies.nextWave = 'eight';
+	spawnSound.bgmTwo()
 };
 
 enemies.update.seven = enemy => {
@@ -50,6 +51,7 @@ const waveSevenBullet = enemy => {
 				angle += Math.PI / count * 2;
 			}
 		}
+		spawnSound.bulletOne();
 	}
 	spawnBullets();
 	PIXI.setTimeout(timeout, spawnBullets);

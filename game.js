@@ -1,8 +1,96 @@
-let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false;
+const isMuted = false, bgmVol = 0.175, bgmMuted = false;
 
-const winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32, grid = 16, gameX = (winWidth - gameWidth) / 2,
-	gameY = grid, browserWindow = require('electron').remote, mainWindow = browserWindow.getCurrentWindow(),
-	game = new PIXI.Application(winWidth, winHeight, {
+sounds = {
+	bulletOne: new Howl({src: ['sound/bullet1.wav'], volume: .05}),
+	bulletTwo: new Howl({src: ['sound/bullet2.wav'], volume: .12}),
+	bulletThree: new Howl({src: ['sound/bullet3.wav'], volume: .12}),
+	bulletPlayer: new Howl({src: ['sound/explosion.wav'], volume: .2}),
+	explosion: new Howl({src: ['sound/explosion.wav'], volume: .2}),
+	graze: new Howl({src: ['sound/graze.wav'], volume: 0.1}),
+	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], loop: true, volume: bgmVol}),
+	bgmTwo: new Howl({src: ['sound/bgm-02.mp3'], loop: true, volume: bgmVol}),
+	bgmThree: new Howl({src: ['sound/bgm-03.mp3'], loop: true, volume: bgmVol}),
+	bgmFour: new Howl({src: ['sound/bgm-04.mp3'], loop: true, volume: bgmVol})
+};
+
+if(isMuted){
+	for(soundName in sounds){
+		sounds[soundName].volume(0);
+	};
+}
+
+const clearBullets = () => {
+	if(sounds.bulletOne.playing()) sounds.bulletOne.stop();
+	if(sounds.bulletTwo.playing()) sounds.bulletTwo.stop();
+	if(sounds.bulletThree.playing()) sounds.bulletThree.stop();
+},
+
+clearBgm = () => {
+	if(sounds.bgmOne.playing()) sounds.bgmOne.stop();
+	if(sounds.bgmTwo.playing()) sounds.bgmTwo.stop();
+	if(sounds.bgmThree.playing()) sounds.bgmThree.stop();
+	if(sounds.bgmFour.playing()) sounds.bgmFour.stop();
+};
+
+spawnSound = {
+
+	bulletOne(){
+		clearBullets()
+		sounds.bulletOne.play();
+	},
+
+	bulletTwo(){
+		clearBullets()
+		sounds.bulletTwo.play();
+	},
+
+	bulletThree(){
+		clearBullets();
+		sounds.bulletThree.play();
+	},
+
+	explosion(){
+		if(sounds.bulletPlayer.playing()) sounds.bulletPlayer.stop();
+		if(sounds.explosion.playing()) sounds.explosion.stop();
+		sounds.explosion.play();
+	},
+
+	graze(){
+		if(sounds.graze.playing()) sounds.graze.stop();
+		sounds.graze.play();
+	},
+
+	bulletPlayer(){
+		if(sounds.bulletPlayer.playing()) sounds.bulletPlayer.stop();
+		sounds.bulletPlayer.play();
+	},
+
+	bgmOne(){
+		clearBgm();
+		if(!bgmMuted) sounds.bgmOne.play();
+	},
+
+	bgmTwo(){
+		clearBgm();
+		if(!bgmMuted) sounds.bgmTwo.play();
+	},
+
+	bgmThree(){
+		clearBgm();
+		if(!bgmMuted) sounds.bgmThree.play();
+	},
+
+	bgmFour(){
+		clearBgm();
+		if(!bgmMuted) sounds.bgmFour.play();
+	},
+
+}
+let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false, starting = true;
+
+const storage = require('electron-json-storage'), winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32,
+	grid = 16, gameX = (winWidth - gameWidth) / 2, gameY = grid, browserWindow = require('electron').remote,
+	mainWindow = browserWindow.getCurrentWindow(), game = new PIXI.Application(winWidth, winHeight, {
 		backgroundColor: 0x140c1c,
 		roundPixels: true
 	});
@@ -63,23 +151,26 @@ const toggleFullscreen = () => {
 mapControls = () => {
 	const keysDown = e => {
 		switch(e.which){
-			case 38: player.data.moving.up = true; break;
-			case 40: player.data.moving.down = true; break;
-			case 37: player.data.moving.left = true; break;
-			case 39: player.data.moving.right = true; break;
-			case 90: player.data.shooting = true; break;
-			case 88: player.data.slow = true; break;
+			case 38: if(!starting) player.data.moving.up = true; break;
+			case 40: if(!starting) player.data.moving.down = true; break;
+			case 37: if(!starting) player.data.moving.left = true; break;
+			case 39: if(!starting) player.data.moving.right = true; break;
+			case 90:
+				if(starting) gameInit();
+				else player.data.shooting = true;
+				break;
+			case 88: if(!starting) player.data.slow = true; break;
 		}
 	}, keysUp = e => {
 		switch(e.which){
-			case 38: player.data.moving.up = false; break;
-			case 40: player.data.moving.down = false; break;
-			case 37: player.data.moving.left = false; break;
-			case 39: player.data.moving.right = false; break;
-			case 90: player.data.shooting = false; break;
-			case 88: player.data.slow = false; break;
+			case 38: if(!starting) player.data.moving.up = false; break;
+			case 40: if(!starting) player.data.moving.down = false; break;
+			case 37: if(!starting) player.data.moving.left = false; break;
+			case 39: if(!starting) player.data.moving.right = false; break;
+			case 90: if(!starting) player.data.shooting = false; break;
+			case 88: if(!starting) player.data.slow = false; break;
 			case 70: toggleFullscreen(); break;
-			case 82: location.reload(); break;
+			case 82: if(!starting) location.reload(); break;
 		}
 	};
 	document.addEventListener('keydown', keysDown);
@@ -213,29 +304,29 @@ chrome = {
 	drawStats(){
 		const drawScore = () => {
 			chrome.drawLabel('HI', true, grid );
-			chrome.drawLabel(processScore(highScore), false, grid);
+			chrome.drawLabel(processScore(highScore), false, grid, 'isHighScore');
 			chrome.drawLabel('SC', true, grid * 2);
 			chrome.drawLabel(processScore(currentScore), false, grid * 2, 'isScore');
 		}, drawLives = () => {
 			let str = '';
 			for(i = 0; i < player.data.lives - 1; i++) str += 'X'
 			chrome.drawLabel('player', true, grid * 4);
-			chrome.drawLabel(str, false, grid * 4);
+			chrome.drawLabel(str, false, grid * 4, 'isLives');
 		}, drawBombs = () => {
 			let str = '';
 			for(i = 0; i < player.data.bombs; i++) str += 'X'
 			chrome.drawLabel('bomb', true, grid * 5);
 			chrome.drawLabel(str, false, grid * 5);
 		}, drawPunk = () => {
-			chrome.drawLabel('punk', true, grid * 7);
-			chrome.drawLabel('1X', false, grid * 7, 'isPunk');
+			chrome.drawLabel('punk', true, grid * 6);
+			chrome.drawLabel('1X', false, grid * 6, 'isPunk');
 		}, drawDrunk = () => {
-			chrome.drawLabel('drunk', true, grid * 8);
-			chrome.drawLabel('0.00', false, grid * 8, 'isDrunk');
+			chrome.drawLabel('drunk', true, grid * 7);
+			chrome.drawLabel('0.00', false, grid * 7, 'isDrunk');
 		}
 		drawScore();
 		drawLives();
-		drawBombs();
+		// drawBombs(); no time for bombs :(
 		drawPunk();
 		drawDrunk();
 	},
@@ -301,8 +392,26 @@ chrome = {
 		player.data.chainTime++;
 	},
 
+	updateHighScore(label){
+		if(currentScore > highScore) highScore = currentScore;
+		const str = processScore(highScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
 	updateScore(label){
 		const str = processScore(currentScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
+	updateLives(label){
+		let str = '';
+		for(i = 0; i < player.data.lives - 1; i++) str += 'X'
 		if(label.text != str){
 			label.text = str;
 			label.x = winWidth - label.width - grid;
@@ -320,6 +429,7 @@ chrome = {
 				label.isDebug = true;
 				label[type] = true;
 			}
+			label.alpha = 0
 			game.stage.addChild(label);
 		};
 
@@ -363,20 +473,41 @@ chrome = {
 			const label = new PIXI.extras.BitmapText('game over', {font: '12px crass'});
 			label.anchor.set(0.5);
 			label.x = winWidth / 2;
-			label.y = winHeight / 2 - 8;
+			label.y = winHeight / 2 - grid - 8;
 			label.zIndex = 105;
 			game.stage.addChild(label);
 		}, won = () => {
-			const str = wonGame ? 'you won' : 'you lost';
+			const str = wonGame ? 'you won' : 'you died';
+			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 - 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
+		}, score = () => {
+			const str = currentScore >= highScore ? 'new: high score' : 'please drink more'
 			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
 			label.anchor.set(0.5);
 			label.x = winWidth / 2;
 			label.y = winHeight / 2 + 8;
 			label.zIndex = 105;
 			game.stage.addChild(label);
+			if(currentScore >= highScore){
+				savedData.highScore = currentScore;
+				storage.set('savedData', savedData);
+			}
+		}, prompt = () => {
+			const label = new PIXI.extras.BitmapText('press r to try again', {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 + grid + 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
 		};
 		main();
 		won();
+		score();
+		prompt();
 	},
 
 	drawBoss(boss){
@@ -421,7 +552,111 @@ chrome = {
 	}
 
 };
+const explosions = {
 
+	interval: 4,
+	spawnTime: 12,
+	spawnClock: 0,
+	size: 32,
+
+	spawn(bullet, big){
+			const explosion = PIXI.Sprite.fromImage('img/explosiona.png');
+			explosion.textureB = PIXI.Texture.fromImage('img/explosionb.png');
+			explosion.textureC = PIXI.Texture.fromImage('img/explosionc.png');
+			explosion.textureD = PIXI.Texture.fromImage('img/explosiond.png');
+			explosion.textureE = PIXI.Texture.fromImage('img/explosione.png');
+			explosion.anchor.set(0.5);
+			explosion.height = explosions.size;
+			explosion.width = explosions.size;
+			explosion.x = bullet.x;
+			explosion.y = bullet.y;
+			explosion.clock = -1;
+			explosion.zIndex = 100;
+			explosion.isExplosion = true;
+			explosion.scale.set(big ? 3 : 2);
+			if(big) explosion.big = true;
+			game.stage.addChild(explosion);
+
+			explosions.spawnClock = 1;
+			spawnSound.explosion();
+	},
+
+	updateExplosion(explosion, i){
+		explosion.clock++;
+		const interval = explosion.big ? 5 : 3;
+		if(explosion.clock == interval) explosion.texture = explosion.textureB;
+		else if(explosion.clock == interval * 2) explosion.texture = explosion.textureC;
+		else if(explosion.clock == interval * 3) explosion.texture = explosion.textureD;
+		else if(explosion.clock == interval * 4) explosion.texture = explosion.textureE;
+		else if(explosion.clock == interval * 5) game.stage.removeChildAt(i);
+	}
+
+};
+const start = {
+
+	draw(){
+
+		const bg = () => {
+			const bg = PIXI.Sprite.fromImage('img/start.png'), img = PIXI.Sprite.fromImage('img/start-img.png'),
+				logo = PIXI.Sprite.fromImage('img/start-logo.png');
+			bg.x = 0;
+			bg.y = 0;
+			bg.zIndex = 1;
+			bg.isStart = true;
+			game.stage.addChild(bg);
+			img.anchor.set(0.5)
+			img.x = winWidth / 2;
+			img.y = winHeight / 2;
+			img.isStart = true;
+			img.zIndex = 2;
+			game.stage.addChild(img);
+			logo.anchor.set(0.5)
+			logo.x = winWidth / 2;
+			logo.y = grid * 6.5;
+			logo.zIndex = 3;
+			logo.isStart = true;
+			game.stage.addChild(logo);
+		},
+
+		prompt = () => {
+			const label = new PIXI.extras.BitmapText('press z to start', {font: '12px crass'}),
+				labelF = new PIXI.extras.BitmapText('f for fullscreen', {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight - grid * 7.25
+			label.zIndex = 4;
+			label.isStart = true;
+			game.stage.addChild(label);
+			labelF.anchor.set(0.5);
+			labelF.x = winWidth / 2;
+			labelF.y = winHeight - grid * 6.25
+			labelF.zIndex = 4;
+			labelF.isStart = true;
+			game.stage.addChild(labelF);
+		},
+
+		credits = () => {
+			const label = new PIXI.extras.BitmapText('2018 boddy', {font: '12px crass'})
+			label.zIndex = 4;
+			label.isStart = true;
+			label.anchor.set(1);
+			label.x = winWidth - grid * 1;
+			label.y = winHeight - grid * 1;
+			game.stage.addChild(label);
+		};
+
+		bg();
+		prompt();
+		credits();
+
+	},
+
+	init(){
+		start.draw();
+		spawnSound.bgmOne();
+	}
+
+};
 const collisionWidth = 11, collisionHeight = 14,
 
 resetSects = () => {
@@ -456,6 +691,8 @@ collision = {
 
 	placeItem(item, index){
 
+		// console.log(item.isPlayer)
+
 		const doPlace = (item, type) => {
 			const x = Math.floor((item.x - gameX) / collision.size),
 				y = Math.floor((item.y - gameY) / collision.size);
@@ -486,8 +723,7 @@ collision = {
 							}
 						}
 					}
-				}
-				else if(type == 'bullet' || type == 'enemyBullet'){
+				} else if(type == 'bullet' || type == 'enemyBullet' || type == 'player'){
 					if(collision.sects[y][x - 1]) collision.sects[y][x - 1][type] = index;
 					if(collision.sects[y][x + 1]) collision.sects[y][x + 1][type] = index;
 					if(collision.sects[y - 1]){
@@ -505,8 +741,9 @@ collision = {
 		};
 
 		if(item.isBullet) doPlace(item, 'bullet');
-		if(item.isEnemy) doPlace(item, 'enemy');
-		// if(item.isEnemyBullet) doPlace(item, 'enemyBullet');
+		else if(item.isEnemy) doPlace(item, 'enemy');
+		else if(item.isEnemyBullet) doPlace(item, 'enemyBullet');
+		else if(item.isPlayer) doPlace(item, 'player');
 
 	},
 
@@ -515,9 +752,11 @@ collision = {
 			for(j = 0; j < collision.sects[i].length; j++){
 				if(collision.sects[i][j].bullet && collision.sects[i][j].enemy){
 					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy), bullet = game.stage.getChildAt(collision.sects[i][j].bullet);
-					if(bullet.x - bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x + bullet.width / 2 <= enemy.x + enemy.width / 2 &&
-						bullet.y - bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y + bullet.height / 2 <= enemy.y + enemy.height / 2 &&
+					if(
+						bullet.x + bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x - bullet.height / 2 <= enemy.x + enemy.width - enemy.width / 2 &&
+			      bullet.y + bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y - bullet.height / 2 <= enemy.y + enemy.height - enemy.height / 2 &&
 						bullet.y - bullet.height / 2 > gameY){
+						explosions.spawn(bullet);
 						bullet.y = -gameHeight;
 						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
@@ -536,6 +775,39 @@ collision = {
 						}
 					}
 				}
+				// if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
+				// 	const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
+				// 	if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+				// 		bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			 //      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			 //      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+				// 		if(!gameOver) explosions.spawn(bullet, true);
+				// 		bullet.y = -gameHeight;
+				// 		if(player.data.lives - 1){
+				// 			player.data.invulnerableClock = 60 * 3;
+				// 			player.data.lives--;
+				// 		} else if(!gameOver) {
+				// 			gameOver = true;
+				// 		}
+				// 	}
+				// }
+				// if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
+				// 	const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
+				// 	if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+				// 		enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			 //      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			 //      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+				// 		if(!gameOver) explosions.spawn(enemy, true);
+				// 		enemy.y = gameHeight * 2;
+				// 		collision.sects[i][j].enemy = false;
+				// 		if(player.data.lives - 1){
+				// 			player.data.invulnerableClock = 60 * 3;
+				// 			player.data.lives--;
+				// 		} else if(!gameOver) {
+				// 			gameOver = true;
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	},
@@ -581,7 +853,7 @@ collision = {
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'bossTwo',
+	nextWave: 'one',
 
 	waves: {},
 	update: {},
@@ -647,6 +919,7 @@ enemies.waves.bossOne = () => {
 	enemy.intervalC = 60 * 4;
 	game.stage.addChild(enemy);
 	enemies.nextWave = 'seven';
+	spawnSound.bgmThree()
 };
 
 enemies.update.bossOne = enemy => {
@@ -662,6 +935,7 @@ enemies.update.bossOne = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
+	enemy.rotation = getAngle(enemy, player.data) + (Math.PI / 2)
 };
 
 const bossOneCardOne = enemy => {
@@ -688,6 +962,7 @@ const bossOneCardOne = enemy => {
 			for(j = 0; j < count - 3; j++) PIXI.setTimeout(.05 * j, () => {
 				spawnSub(tempAngle + (sCount * .075), sCount)
 				sCount++;
+				spawnSound.bulletOne();
 			});
 			oAngle += Math.PI / (count / 2);
 		}
@@ -715,6 +990,7 @@ const bossOneCardTwo = enemy => {
 			game.stage.addChild(bullet);
 			angle += Math.PI / (count / 2)
 		}
+		spawnSound.bulletThree();
 	};
 	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60;
 	if(enemy.clock % interval == 0) spawnBullets();
@@ -755,11 +1031,12 @@ const bossOneCardThree = enemy => {
 			game.stage.addChild(bullet);
 		};
 		spawnOBullet();
+		spawnSound.bulletTwo();
 	}
 
 }
 enemies.waves.bossTwo = () => {
-	const enemy = PIXI.Sprite.fromImage('img/boss-one.png'), size = 76;
+	const enemy = PIXI.Sprite.fromImage('img/boss-two.png'), size = 76;
 	enemy.anchor.set(0.5);
 	enemy.isEnemy = true;
 	enemy.type = 'bossTwo';
@@ -767,17 +1044,18 @@ enemies.waves.bossTwo = () => {
 	enemy.y = gameY - size / 2;
 	enemy.score = 100000;
 	enemy.isBoss = true;
-	enemy.health = 100;
+	enemy.health = 400;
 	bossData = enemy.health;
 	enemy.zIndex = 30.05;
 	enemy.speed = 2.65;
 	enemy.speedDiff = 0.03;
 	enemy.clock = 0;
 	enemy.intervalA = 60 * 7;
-	enemy.intervalB = 60 * 5;
-	enemy.intervalC = 60 * 5;
+	enemy.intervalB = 60 * 6;
+	enemy.intervalC = 60 * 6;
 	game.stage.addChild(enemy);
 	enemies.nextWave = false;
+	spawnSound.bgmFour()
 };
 
 enemies.update.bossTwo = enemy => {
@@ -794,6 +1072,7 @@ enemies.update.bossTwo = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
+	// enemy.rotation = 0
 };
 
 const bossTwoCardOne = enemy => {
@@ -818,6 +1097,7 @@ const bossTwoCardOne = enemy => {
 				bullet.type = 'bossTwoCardOne';
 				game.stage.addChild(bullet);
 			}
+			spawnSound.bulletTwo()
 		}
 	}, razor = () => {
 		const dirClock = enemy.intervalA / 10, count = 5;
@@ -830,6 +1110,7 @@ const bossTwoCardOne = enemy => {
 					bullet.isEnemyBullet = true;
 					bullet.x = enemy.x;
 					bullet.y = enemy.y;
+					bullet.zIndex = 29;
 					const speed = 2;
 					bullet.velocity = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
 					if(enemy.clock >= dirClock && enemy.clock < dirClock * 2 ||
@@ -849,6 +1130,7 @@ const bossTwoCardOne = enemy => {
 				});
 				oAngle += Math.PI / (count / 4);
 			}
+			spawnSound.bulletTwo()
 		}
 	};
 	gravitySpray();
@@ -865,8 +1147,8 @@ enemies.bulletUpdate.bossTwoCardOne = bullet => {
 };
 
 const bossTwoCardTwo = (enemy, isAlt) => {
-	const sec = 60, lasers = () => {
-		const angle = getAngle(enemy, {x: isAlt ? gameX + gameWidth : gameX, y: gameY + gameHeight});
+	const angleObj = {x: isAlt ? gameX + gameWidth : gameX, y: gameY + gameHeight}
+	const angle = getAngle(enemy, angleObj), sec = 60, lasers = () => {
 		const fire = (x, y, angleOffset) => {
 			const bullet = PIXI.Sprite.fromImage('img/bullet-pink-big.png');
 			bullet.altTex = PIXI.Texture.fromImage('img/bullet-pink.png');
@@ -887,21 +1169,19 @@ const bossTwoCardTwo = (enemy, isAlt) => {
 		};
 		if(enemy.clock % 3 == 0){
 			const offset = grid * 1.5;
-
 			const lOffsetA = isAlt ? enemy.x + offset : enemy.x - offset,
 				lOffsetB = isAlt ? enemy.x - offset : enemy.x + offset;
-
 			fire(lOffsetA, enemy.y - offset, -2);
 			fire(lOffsetA, enemy.y - offset, -1);
 			fire(lOffsetA, enemy.y - offset, 0);
 			fire(lOffsetA, enemy.y - offset, 1);
 			fire(lOffsetA, enemy.y - offset, 2);
-
 			fire(lOffsetB, enemy.y + offset, 2);
 			fire(lOffsetB, enemy.y + offset, 1);
 			fire(lOffsetB, enemy.y + offset, 0);
 			fire(lOffsetB, enemy.y + offset, -1);
 			fire(lOffsetB, enemy.y + offset, -2);
+			spawnSound.bulletThree()
 		}
 	};
 	let limitA = enemy.intervalA + sec, limitB = enemy.intervalA + enemy.intervalB - sec;
@@ -945,8 +1225,10 @@ const bossTwoCardThree = enemy => {
 	};
 	if(enemy.clock % interval == 0){
 		circle(enemy.x - offset);
+		spawnSound.bulletOne()
 	} else if(enemy.clock % interval == interval / 2){
 		circle(enemy.x + offset, true);
+		spawnSound.bulletOne()
 	}
 };
 
@@ -967,7 +1249,7 @@ enemies.waves.seven = () => {
 		enemy.type = 'seven';
 		enemy.speed = 3.5;
 		enemy.alcohol = true
-		enemy.health = 6;
+		enemy.health = 22;
 		enemy.score = 8210;
 		enemy.speedDiff = 0.04;
 		enemy.opposite = opposite;
@@ -978,6 +1260,7 @@ enemies.waves.seven = () => {
 	spawnEnemy(gameWidth / 5 * 3, yOffset * 2, false);
 	spawnEnemy(gameWidth / 5 * 4, yOffset * 3, true);
 	enemies.nextWave = 'eight';
+	spawnSound.bgmTwo()
 };
 
 enemies.update.seven = enemy => {
@@ -1009,6 +1292,7 @@ const waveSevenBullet = enemy => {
 				angle += Math.PI / count * 2;
 			}
 		}
+		spawnSound.bulletOne();
 	}
 	spawnBullets();
 	PIXI.setTimeout(timeout, spawnBullets);
@@ -1054,7 +1338,7 @@ waveSixDrop = x => {
 	enemy.x = x;
 	enemy.speed = 4.5;
 	enemy.speedDiff = 0.05;
-	enemy.health = 8;
+	enemy.health = 20;
 	enemy.score = 6250;
 	enemy.zIndex = 31;
 	game.stage.addChild(enemy);
@@ -1076,6 +1360,7 @@ waveSixDropBullet = (enemy, opposite) => {
 				game.stage.addChild(bullet);
 				angle += Math.PI / count * 2;
 			}
+			spawnSound.bulletThree();
 		}
 	};
 	const initAngle = opposite ? Math.PI / count : 0;
@@ -1140,7 +1425,7 @@ const levelOneFirstWave = (initialX, opposite) => {
 		enemy.speed = 2.75;
 		enemy.opposite = opposite;
 		enemy.count = count;
-		enemy.health = 0;
+		enemy.health = 1;
 		enemy.alcohol = true;
 		enemy.score = 1000;
 		game.stage.addChild(enemy);
@@ -1179,7 +1464,7 @@ const waveTen = opposite => {
 		enemy.y = gameY - size / 2 - size * i;
 		enemy.score = 12000;
 		enemy.speedDiff = 0.05;
-		enemy.health = 7;
+		enemy.health = 20;
 		enemy.zIndex = 31;
 		enemy.dropClock = 0;
 		enemy.dropLimit = 60 * 3;
@@ -1233,10 +1518,13 @@ const waveTenBullet = enemy => {
 		bullet.type = 'ten';
 		game.stage.addChild(bullet);
 	};
-	if(enemy.dropClock < limit) spawnBullet();
-	else {
+	if(enemy.dropClock < limit){
+		spawnBullet();
+		spawnSound.bulletThree();
+	} else {
 		spawnBullet(4);
 		spawnBullet(-4);
+		spawnSound.bulletTwo();
 	}
 };
 
@@ -1361,6 +1649,7 @@ const waveEightBullet = enemy => {
 			}
 			angle += enemy.opposite ? -(Math.PI / count / 4) : Math.PI / count / 4;
 		}
+		spawnSound.bulletTwo();
 	}
 	for(i = 0; i < 8; i++) PIXI.setTimeout(timeout * i, spawnBullets);
 	PIXI.setTimeout(timeout * 2, () => {
@@ -1378,6 +1667,7 @@ const waveEightBullet = enemy => {
 				bullet.type = 'eight';
 				game.stage.addChild(bullet);
 			}
+			spawnSound.bulletTwo();
 		};
 		for(i = 0; i < 30; i++) PIXI.setTimeout((timeout) * i, spawnOBullet);
 	})
@@ -1416,7 +1706,7 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speed = 3;
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
-	enemy.health = 6;
+	enemy.health = 15;
 	enemy.score = 7575;
 	enemy.alcohol = true;
 	game.stage.addChild(enemy);
@@ -1440,6 +1730,7 @@ levelOneFifthDropBullet = enemy => {
 				game.stage.addChild(bullet);
 				angle += Math.PI / count * 2;
 			}
+			spawnSound.bulletTwo();
 		}
 	};
 	spawnBullets(0);
@@ -1509,7 +1800,7 @@ levelOneFirstWaveDrop = x => {
 	enemy.speed = enemy.speedInit;
 	enemy.speedMod = 0.06;
 	enemy.zIndex = 35;
-	enemy.health = 7;
+	enemy.health = 10;
 	enemy.score = 5500;
 	game.stage.addChild(enemy);
 },
@@ -1555,6 +1846,7 @@ levelOneFirstWaveDropBullet = enemy => {
 	doBullet('leftB');
 	doBullet('right');
 	doBullet('rightB');
+	spawnSound.bulletOne();
 };
 
 enemies.waves.three = () => {
@@ -1600,10 +1892,7 @@ enemies.bulletUpdate.oneDrop = bullet => {
 const player = {
 
 	data: PIXI.Sprite.fromImage('img/player.png'),
-
-	// ended up not liking the float for this game, but at least it's in now
-	// floatLeft: PIXI.Sprite.fromImage('img/player-float-left.png'),
-	// floatRight: PIXI.Sprite.fromImage('img/player-float-left.png'),
+	hitbox: new PIXI.Graphics(),
 	
 	floatOffset: grid * 2.5,
 
@@ -1713,25 +2002,35 @@ const player = {
 			if(player.data.moving.left){
 				player.data.skew.y = -player.data.skewOffset;
 				player.data.x -= speed;
+				player.hitbox.x -= speed;
 			} else if(player.data.moving.right){
 				player.data.skew.y = player.data.skewOffset;
 				player.data.x += speed;
+				player.hitbox.x += speed;
 			} else if(player.data.skew.y != 0) player.data.skew.y = 0;
 
-			if(player.data.moving.up) player.data.y -= speed;
-			else if(player.data.moving.down) player.data.y += speed;
-			if(player.data.x < player.data.width / 2 + gameX) player.data.x = player.data.width / 2 + gameX;
-			else if(player.data.x > gameWidth - player.data.width / 2 + gameX) player.data.x = gameWidth - player.data.width / 2 + gameX;
-			if(player.data.y < player.data.height / 2 + gameY) player.data.y = player.data.height / 2 + gameY;
-			else if(player.data.y > gameHeight - player.data.height / 2 + gameY) player.data.y = gameHeight - player.data.height / 2 + gameY;
-
-			// player.floatLeft.x = player.data.x - player.floatOffset; 
-			// player.floatLeft.y = player.data.y;
-			// player.floatRight.x = player.data.x + player.floatOffset; 
-			// player.floatRight.y = player.data.y;
-
+			if(player.data.moving.up){
+				player.data.y -= speed;
+				player.hitbox.y -= speed;
+			} else if(player.data.moving.down){
+				player.data.y += speed;
+				player.hitbox.y += speed;
+			}
+			if(player.data.x < player.data.width / 2 + gameX){
+				player.data.x = player.data.width / 2 + gameX;
+				player.hitbox.x = player.data.x - 2;
+			} else if(player.data.x > gameWidth - player.data.width / 2 + gameX){
+				player.data.x = gameWidth - player.data.width / 2 + gameX;
+				player.hitbox.x = player.data.x - 2;
+			}
+			if(player.data.y < player.data.height / 2 + gameY){
+				player.data.y = player.data.height / 2 + gameY;
+				player.hitbox.y = player.data.y - 4;
+			} else if(player.data.y > gameHeight - player.data.height / 2 + gameY){
+				player.data.y = gameHeight - player.data.height / 2 + gameY;
+				player.hitbox.y = player.data.y - 4;
+			}
 		},
-
 		shoot = () => {
 			if(player.data.shooting){
 				if(player.data.shotInterval != player.data.shotIntervalInit) player.data.shotInterval = player.data.shotIntervalInit;
@@ -1753,22 +2052,41 @@ const player = {
 						player.spawnBullet('leftD');
 						player.spawnBullet('rightD');
 					}
+					spawnSound.bulletPlayer();
 				}
 				player.data.shotClock++;
 			} else if(player.data.shotClock) player.data.shotClock = 0;
+		},
+		die = () => {
+			if(player.data.invulnerableClock > 0){
+				if(!player.removed){
+					player.removed = true;
+					player.data.x = gameWidth / 2 + gameX;
+					player.data.y = gameHeight - grid * 3 + gameY;
+					player.hitbox.x = player.data.x - 2;
+					player.hitbox.y = player.data.y - 4;
+					player.data.drunk -= 25;
+					if(player.data.drunk < 0) player.data.drunk = 0;
+				}
+				const interval = grid * 2;
+				if(player.data.invulnerableClock % interval < interval / 2) player.data.alpha = 0;
+				else if(!player.data.alpha) player.data.alpha = 1;
+				player.data.invulnerableClock--;
+			} else {
+				if(!player.data.alpha) player.data.alpha = 1;
+				if(player.removed) player.removed = false;
+			}
 		};
-
-
 		if(gameOver){
 			if(wonGame){
 				player.data.y -= player.data.speed;
 				player.data.speed += 0.15;
-			}
+			} else if(player.data.alpha) player.data.alpha = 0;
 		} else {
 			move();
 			shoot();
+			die();
 		}
-
 	},
 
 	updateBullet(bullet, i){
@@ -1787,44 +2105,76 @@ const player = {
 	},
 
 	init(){
-		player.data.moving = {up: false, down: false, left: false, right: false};
-		player.data.moved = {up: false, down: false, left: false, right: false};
-		player.data.speed = 4.25;
-		player.data.shooting = false;
-		player.data.shotClock = 0;
-		player.data.shotIntervalInit = 8;
-		player.data.shotInterval = player.data.shotIntervalInit;
-		player.data.drunk = 0;
-		player.data.drunkDiff = 1;
-		player.data.anchor.set(0.5);
-		player.data.x = gameWidth / 2 + gameX;
-		player.data.y = gameHeight - grid * 3 + gameY;
-		player.data.zIndex = 21;
-		player.data.lives = 3;
-		player.data.bombs = 2;
-		player.data.skewOffset = 0.1;
-		player.data.chain = 0;
-		player.data.chainTime = 0;
-		player.data.chainLimit = 60 * 1.5;
-		player.data.punk = 1;
-		game.stage.addChild(player.data);
+		const drawPlayer = () => {
+			player.data.moving = {up: false, down: false, left: false, right: false};
+			player.data.moved = {up: false, down: false, left: false, right: false};
+			player.data.speed = 4.25;
+			player.data.shooting = false;
+			player.data.shotClock = 0;
+			player.data.shotIntervalInit = 8;
+			player.data.shotInterval = player.data.shotIntervalInit;
+			player.data.drunk = 0;
+			player.data.drunkDiff = 1;
+			player.data.anchor.set(0.5);
+			player.data.x = gameWidth / 2 + gameX;
+			player.data.y = gameHeight - grid * 3 + gameY;
+			player.data.zIndex = 21;
+			player.data.lives = 3;
+			player.data.bombs = 2;
+			player.data.skewOffset = 0.1;
+			player.data.chain = 0;
+			player.data.chainTime = 0;
+			player.data.chainLimit = 60 * 1.5;
+			player.data.punk = 1;
+			player.data.invulnerableClock = 0;
+			game.stage.addChild(player.data);
+		},
+		drawHitbox = () => {
+			const size = 3;
+			player.data.anchor.set(0.5);
+			player.hitbox.zIndex = 9999;
+			player.hitbox.lineStyle(0);
+			player.hitbox.beginFill(0xdad45e);
+			player.hitbox.drawRect(0, 0, size, size);
+			player.hitbox.endFill();
+			player.hitbox.x = player.data.x - 1;
+			player.hitbox.y = player.data.y - 4;
+			player.hitbox.alpha = 0;
+			player.data.isPlayer = true;
+			game.stage.addChild(player.hitbox);
+		};
 
-		// player.floatLeft.anchor.set(0.5);
-		// player.floatLeft.x = player.data.x - player.floatOffset;
-		// player.floatLeft.y = player.data.y;
-		// player.floatLeft.zIndex = 21;
-		// game.stage.addChild(player.floatLeft);
-
-		// player.floatRight.anchor.set(0.5);
-		// player.floatRight.x = player.data.x + player.floatOffset;
-		// player.floatRight.y = player.data.y;
-		// player.floatRight.zIndex = 21;
-		// game.stage.addChild(player.floatRight);
+		drawPlayer();
+		drawHitbox();
 
 		game.ticker.add(player.update);
 	}
 
 };
+
+
+
+// ended up not liking the float for this game, but at least it's in now
+// floatLeft: PIXI.Sprite.fromImage('img/player-float-left.png'),
+// floatRight: PIXI.Sprite.fromImage('img/player-float-left.png'),
+
+// player.floatLeft.x = player.data.x - player.floatOffset; 
+// player.floatLeft.y = player.data.y;
+// player.floatRight.x = player.data.x + player.floatOffset; 
+// player.floatRight.y = player.data.y;
+
+
+// player.floatLeft.anchor.set(0.5);
+// player.floatLeft.x = player.data.x - player.floatOffset;
+// player.floatLeft.y = player.data.y;
+// player.floatLeft.zIndex = 21;
+// game.stage.addChild(player.floatLeft);
+
+// player.floatRight.anchor.set(0.5);
+// player.floatRight.x = player.data.x + player.floatOffset;
+// player.floatRight.y = player.data.y;
+// player.floatRight.zIndex = 21;
+// game.stage.addChild(player.floatRight);
 let lastEnemyCount = 0, enemyCount = 0, bulletCount = 0;
 
 const mainLoop = () => {
@@ -1846,17 +2196,24 @@ const mainLoop = () => {
 		} else if(child.isEnemyBullet){
 			enemies.bulletUpdate[child.type](child, i);
 			enemies.mainBulletUpdate(child, i);
+			collision.placeItem(child, i);
 			bulletCount++;
-			// collision.placeItem(child, i);
+		} else if(child.isPlayer){
+			// console.log('ffff')
+			collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
 		else if(child.isDrunk) chrome.updateDrunk(child);
 		else if(child.isScore) chrome.updateScore(child);
+		else if(child.isHighScore) chrome.updateHighScore(child);
 		else if(child.isPunk) chrome.updatePunk(child);
+		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
+		else if(child.isExplosion) explosions.updateExplosion(child, i);
+		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);
-			if(!drewBoss) game.stage.removeChildAt(i)
+			if(!drewBoss && !bossData) child.alpha = 0;
 		}
 		else if(child.isBossBarBg && !drewBoss) game.stage.removeChildAt(i)
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);
@@ -1875,17 +2232,35 @@ const mainLoop = () => {
 	sortZIndex();
 },
 
+startLoop = () => {
+	sortZIndex();
+},
+
+startInit = () => {
+	start.init();
+	game.ticker.add(startLoop);
+},
+
+gameInit = () => {
+	starting = false;
+	game.ticker.remove(startLoop);
+	background.init();
+	player.init();
+	collision.init();
+	chrome.init();
+	game.ticker.add(mainLoop);
+	spawnSound.bgmTwo()
+},
+
 init = () => {
-
-
-	PIXI.loader.add('crass', 'crass.xml').load(data => {
-		document.body.appendChild(game.view);
-		mapControls();
-		background.init();
-		player.init();
-		collision.init();
-		chrome.init();
-		game.ticker.add(mainLoop);
+	storage.get('savedData', (err, data) => {
+		savedData = data;
+		if(savedData.highScore) highScore = savedData.highScore;
+		PIXI.loader.add('crass', 'crass.xml').load(data => {
+			document.body.appendChild(game.view);
+			mapControls();
+			startInit();
+		});
 	});
 };
 

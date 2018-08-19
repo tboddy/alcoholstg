@@ -31,7 +31,7 @@ waveSixDrop = x => {
 	enemy.x = x;
 	enemy.speed = 4.5;
 	enemy.speedDiff = 0.05;
-	enemy.health = 8;
+	enemy.health = 20;
 	enemy.score = 6250;
 	enemy.zIndex = 31;
 	game.stage.addChild(enemy);
@@ -53,6 +53,7 @@ waveSixDropBullet = (enemy, opposite) => {
 				game.stage.addChild(bullet);
 				angle += Math.PI / count * 2;
 			}
+			spawnSound.bulletThree();
 		}
 	};
 	const initAngle = opposite ? Math.PI / count : 0;

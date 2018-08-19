@@ -24,29 +24,29 @@ chrome = {
 	drawStats(){
 		const drawScore = () => {
 			chrome.drawLabel('HI', true, grid );
-			chrome.drawLabel(processScore(highScore), false, grid);
+			chrome.drawLabel(processScore(highScore), false, grid, 'isHighScore');
 			chrome.drawLabel('SC', true, grid * 2);
 			chrome.drawLabel(processScore(currentScore), false, grid * 2, 'isScore');
 		}, drawLives = () => {
 			let str = '';
 			for(i = 0; i < player.data.lives - 1; i++) str += 'X'
 			chrome.drawLabel('player', true, grid * 4);
-			chrome.drawLabel(str, false, grid * 4);
+			chrome.drawLabel(str, false, grid * 4, 'isLives');
 		}, drawBombs = () => {
 			let str = '';
 			for(i = 0; i < player.data.bombs; i++) str += 'X'
 			chrome.drawLabel('bomb', true, grid * 5);
 			chrome.drawLabel(str, false, grid * 5);
 		}, drawPunk = () => {
-			chrome.drawLabel('punk', true, grid * 7);
-			chrome.drawLabel('1X', false, grid * 7, 'isPunk');
+			chrome.drawLabel('punk', true, grid * 6);
+			chrome.drawLabel('1X', false, grid * 6, 'isPunk');
 		}, drawDrunk = () => {
-			chrome.drawLabel('drunk', true, grid * 8);
-			chrome.drawLabel('0.00', false, grid * 8, 'isDrunk');
+			chrome.drawLabel('drunk', true, grid * 7);
+			chrome.drawLabel('0.00', false, grid * 7, 'isDrunk');
 		}
 		drawScore();
 		drawLives();
-		drawBombs();
+		// drawBombs(); no time for bombs :(
 		drawPunk();
 		drawDrunk();
 	},
@@ -112,8 +112,26 @@ chrome = {
 		player.data.chainTime++;
 	},
 
+	updateHighScore(label){
+		if(currentScore > highScore) highScore = currentScore;
+		const str = processScore(highScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
 	updateScore(label){
 		const str = processScore(currentScore);
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
+	updateLives(label){
+		let str = '';
+		for(i = 0; i < player.data.lives - 1; i++) str += 'X'
 		if(label.text != str){
 			label.text = str;
 			label.x = winWidth - label.width - grid;
@@ -131,6 +149,7 @@ chrome = {
 				label.isDebug = true;
 				label[type] = true;
 			}
+			label.alpha = 0
 			game.stage.addChild(label);
 		};
 
@@ -174,20 +193,41 @@ chrome = {
 			const label = new PIXI.extras.BitmapText('game over', {font: '12px crass'});
 			label.anchor.set(0.5);
 			label.x = winWidth / 2;
-			label.y = winHeight / 2 - 8;
+			label.y = winHeight / 2 - grid - 8;
 			label.zIndex = 105;
 			game.stage.addChild(label);
 		}, won = () => {
-			const str = wonGame ? 'you won' : 'you lost';
+			const str = wonGame ? 'you won' : 'you died';
+			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 - 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
+		}, score = () => {
+			const str = currentScore >= highScore ? 'new: high score' : 'please drink more'
 			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
 			label.anchor.set(0.5);
 			label.x = winWidth / 2;
 			label.y = winHeight / 2 + 8;
 			label.zIndex = 105;
 			game.stage.addChild(label);
+			if(currentScore >= highScore){
+				savedData.highScore = currentScore;
+				storage.set('savedData', savedData);
+			}
+		}, prompt = () => {
+			const label = new PIXI.extras.BitmapText('press r to try again', {font: '12px crass'});
+			label.anchor.set(0.5);
+			label.x = winWidth / 2;
+			label.y = winHeight / 2 + grid + 8;
+			label.zIndex = 105;
+			game.stage.addChild(label);
 		};
 		main();
 		won();
+		score();
+		prompt();
 	},
 
 	drawBoss(boss){

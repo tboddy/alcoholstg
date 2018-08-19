@@ -3,21 +3,16 @@ module.exports = function(grunt) {
 		concat: {
 			development: {
 				src: [
-					//'src/images.js',
-					//'src/sounds.js',
+					'src/sound.js',
 					'src/global.js',
 					'src/controls.js',
 					'src/background.js',
 					'src/chrome.js',
 					'src/explosion.js',
-					//'src/start.js',
-					//'src/pointchrome.js',
+					'src/start.js',
 					'src/collision.js',
 					'src/enemies.js',
-					//'src/bullets-enemies.js',
 					'src/enemies/*.js',
-					//'src/drop.js',
-					//'src/bullets-player.js',
 					'src/player.js',
 					'src/game.js'
 				],

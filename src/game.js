@@ -19,17 +19,24 @@ const mainLoop = () => {
 		} else if(child.isEnemyBullet){
 			enemies.bulletUpdate[child.type](child, i);
 			enemies.mainBulletUpdate(child, i);
+			collision.placeItem(child, i);
 			bulletCount++;
-			// collision.placeItem(child, i);
+		} else if(child.isPlayer){
+			// console.log('ffff')
+			collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
 		else if(child.isDrunk) chrome.updateDrunk(child);
 		else if(child.isScore) chrome.updateScore(child);
+		else if(child.isHighScore) chrome.updateHighScore(child);
 		else if(child.isPunk) chrome.updatePunk(child);
+		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
+		else if(child.isExplosion) explosions.updateExplosion(child, i);
+		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);
-			if(!drewBoss) game.stage.removeChildAt(i)
+			if(!drewBoss && !bossData) child.alpha = 0;
 		}
 		else if(child.isBossBarBg && !drewBoss) game.stage.removeChildAt(i)
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);
@@ -48,17 +55,35 @@ const mainLoop = () => {
 	sortZIndex();
 },
 
+startLoop = () => {
+	sortZIndex();
+},
+
+startInit = () => {
+	start.init();
+	game.ticker.add(startLoop);
+},
+
+gameInit = () => {
+	starting = false;
+	game.ticker.remove(startLoop);
+	background.init();
+	player.init();
+	collision.init();
+	chrome.init();
+	game.ticker.add(mainLoop);
+	spawnSound.bgmTwo()
+},
+
 init = () => {
-
-
-	PIXI.loader.add('crass', 'crass.xml').load(data => {
-		document.body.appendChild(game.view);
-		mapControls();
-		background.init();
-		player.init();
-		collision.init();
-		chrome.init();
-		game.ticker.add(mainLoop);
+	storage.get('savedData', (err, data) => {
+		savedData = data;
+		if(savedData.highScore) highScore = savedData.highScore;
+		PIXI.loader.add('crass', 'crass.xml').load(data => {
+			document.body.appendChild(game.view);
+			mapControls();
+			startInit();
+		});
 	});
 };
 

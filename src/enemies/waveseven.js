@@ -10,7 +10,7 @@ const waveTen = opposite => {
 		enemy.y = gameY - size / 2 - size * i;
 		enemy.score = 12000;
 		enemy.speedDiff = 0.05;
-		enemy.health = 7;
+		enemy.health = 20;
 		enemy.zIndex = 31;
 		enemy.dropClock = 0;
 		enemy.dropLimit = 60 * 3;
@@ -64,10 +64,13 @@ const waveTenBullet = enemy => {
 		bullet.type = 'ten';
 		game.stage.addChild(bullet);
 	};
-	if(enemy.dropClock < limit) spawnBullet();
-	else {
+	if(enemy.dropClock < limit){
+		spawnBullet();
+		spawnSound.bulletThree();
+	} else {
 		spawnBullet(4);
 		spawnBullet(-4);
+		spawnSound.bulletTwo();
 	}
 };
 
