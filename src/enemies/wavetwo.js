@@ -32,7 +32,7 @@ levelOneFirstWaveDrop = x => {
 	enemy.speed = enemy.speedInit;
 	enemy.speedMod = 0.06;
 	enemy.zIndex = 35;
-	enemy.health = 20;
+	enemy.health = 7;
 	enemy.score = 5500;
 	game.stage.addChild(enemy);
 },

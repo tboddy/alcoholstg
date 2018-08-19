@@ -10,7 +10,7 @@ const waveTen = opposite => {
 		enemy.y = gameY - size / 2 - size * i;
 		enemy.score = 12000;
 		enemy.speedDiff = 0.05;
-		enemy.health = 50;
+		enemy.health = 7;
 		enemy.zIndex = 31;
 		enemy.dropClock = 0;
 		enemy.dropLimit = 60 * 3;
@@ -42,7 +42,7 @@ enemies.waves.ten = () => {
 
 enemies.waves.eleven = () => {
 	waveTen(true);
-	enemies.nextWave = 'ten';
+	enemies.nextWave = 'one';
 };
 
 enemies.update.ten = enemy => {

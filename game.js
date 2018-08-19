@@ -1,4 +1,4 @@
-let currentScore = 0, highScore = 0, boss = false;
+let currentScore = 0, highScore = 0, bossData = false;
 
 const winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32, grid = 16, gameX = (winWidth - gameWidth) / 2,
 	gameY = grid, browserWindow = require('electron').remote, mainWindow = browserWindow.getCurrentWindow(),
@@ -461,16 +461,21 @@ collision = {
 					if(bullet.x - bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x + bullet.width / 2 <= enemy.x + enemy.width / 2 &&
 						bullet.y - bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y + bullet.height / 2 <= enemy.y + enemy.height / 2 &&
 						bullet.y - bullet.height / 2 > gameY){
+						bullet.y = -gameHeight;
+						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
 							enemy.y = gameHeight * 2;
-							bullet.y = -gameHeight;
 							collision.sects[i][j].enemy = false;
-							collision.sects[i][j].bullet = false;
 							player.data.chain++;
 							player.data.chainTime = 0;
 							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
 							if(enemy.score) currentScore += enemy.score * player.data.punk;
+							if(bossData){
+								PIXI.setTimeout(1, () => {
+									bossData = false;
+								});
+							}
 						}
 					}
 				}
@@ -519,7 +524,7 @@ collision = {
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'ten',
+	nextWave: 'one',
 
 	waves: {},
 	update: {},
@@ -564,6 +569,138 @@ const enemies = {
 	}
 
 };
+enemies.waves.bossOne = () => {
+	const enemy = PIXI.Sprite.fromImage('img/boss-one.png'), size = 76;
+	enemy.anchor.set(0.5);
+	enemy.isEnemy = true;
+	enemy.type = 'bossOne';
+	enemy.x = gameX + gameWidth / 2;
+	enemy.y = gameY - size / 2;
+	enemy.score = 100000;
+	enemy.isBoss = true;
+	bossData = true;
+	enemy.health = 300;
+	enemy.zIndex = 35;
+	enemy.zIndex = 51;
+	enemy.speed = 2.65;
+	enemy.speedDiff = 0.03;
+	enemy.clock = 0;
+	enemy.intervalA = 60 * 4;
+	enemy.intervalB = 60 * 5;
+	enemy.intervalC = 60 * 4;
+	game.stage.addChild(enemy);
+	enemies.nextWave = 'seven';
+};
+
+enemies.update.bossOne = enemy => {
+	if(enemy.inPlace){
+		if(enemy.speed != 0) enemy.speed = 0;
+		if(enemy.clock < enemy.intervalA) bossOneCardOne(enemy);
+		else if(enemy.clock >= enemy.intervalA && enemy.clock < enemy.intervalA + enemy.intervalB) bossOneCardTwo(enemy);
+		else if(enemy.clock >= enemy.intervalA + enemy.intervalB && enemy.clock < enemy.intervalA + enemy.intervalB + enemy.intervalC) bossOneCardThree(enemy);
+		else enemy.clock = 0;
+		enemy.clock++;
+	} else {
+		enemy.y += enemy.speed;
+		enemy.speed -= enemy.speedDiff;
+		if(enemy.speed <= 0) enemy.inPlace = true;
+	}
+};
+
+const bossOneCardOne = enemy => {
+	const dirClock = enemy.intervalA / 3;
+	if(enemy.clock % dirClock == 0){
+		let oAngle = 0;
+		const count = 10;
+		for(i = 0; i < count; i++){
+			const spawnSub = (angle, index, oIndex) => {
+				const bullet = PIXI.Sprite.fromImage('img/bullet-pink-big.png');
+				bullet.anchor.set(0.5);
+				bullet.isEnemyBullet = true;
+				bullet.x = enemy.x;
+				bullet.y = enemy.y;
+				const speed = 3;
+				bullet.velocity = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
+				if(enemy.clock >= dirClock && enemy.clock < dirClock * 2){
+					bullet.velocity.x = -Math.cos(angle) * -speed
+				}
+				bullet.type = 'bossOneCardOne';
+				game.stage.addChild(bullet);
+			}
+			let sCount = 0, tempAngle = oAngle;
+			for(j = 0; j < count - 3; j++) PIXI.setTimeout(.05 * j, () => {
+				spawnSub(tempAngle + (sCount * .075), sCount)
+				sCount++;
+			});
+			oAngle += Math.PI / (count / 2);
+		}
+	}
+};
+
+enemies.bulletUpdate.bossOneCardOne = bullet => {
+	bullet.y += bullet.velocity.y;
+	bullet.x += bullet.velocity.x;
+};
+
+const bossOneCardTwo = enemy => {
+	const spawnBullets = () => {
+		const count = 13;
+		let angle = 0;
+		for(i = 0; i < count; i++){
+			const bullet = PIXI.Sprite.fromImage('img/bullet-blue-big.png');
+			bullet.anchor.set(0.5);
+			bullet.isEnemyBullet = true;
+			bullet.x = enemy.x;
+			bullet.y = enemy.y;
+			const speed = 2;
+			bullet.velocity = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
+			bullet.type = 'bossOneCardTwo';
+			game.stage.addChild(bullet);
+			angle += Math.PI / (count / 2)
+		}
+	};
+	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60;
+	if(enemy.clock % interval == 0) spawnBullets();
+	if(enemy.clock < enemy.intervalA + sec){
+		enemy.y += ySpeed;
+		enemy.x -= xSpeed;
+	} else if(enemy.clock >= enemy.intervalA + (sec * 2) &&
+		enemy.clock < enemy.intervalA + (sec * 3)){
+		enemy.y -= ySpeed;
+		enemy.x += xSpeed * 2;
+	} else if(enemy.clock >= enemy.intervalA + (sec * 4) &&
+		enemy.clock < enemy.intervalA + (sec * 5)){
+		enemy.x -= xSpeed;
+	}
+};
+
+enemies.bulletUpdate.bossOneCardTwo = bullet => {
+	bullet.y += bullet.velocity.y;
+	bullet.x += bullet.velocity.x;
+};
+
+const bossOneCardThree = enemy => {
+	const interval = 2;
+	if(enemy.clock % interval == 0){
+		const speed = 2;
+		let angle = getAngle(enemy, player.data);
+		const spawnOBullet = () => {
+			const img = enemy.clock % (interval * 2) == interval ? 'img/bullet-pink.png' : 'img/bullet-blue.png'
+			const bullet = PIXI.Sprite.fromImage(img);
+			bullet.anchor.set(0.5);
+			bullet.x = enemy.x;
+			bullet.y = enemy.y;
+			bullet.isEnemyBullet = true;
+			let iAngle = angle - Math.PI / 3 + Math.random() * (Math.PI / 3 * 2);
+			bullet.velocity = {x: -Math.cos(iAngle) * speed, y: -Math.sin(iAngle) * speed};
+			bullet.zIndex = 31;
+			bullet.type = 'eight';
+			game.stage.addChild(bullet);
+		};
+		spawnOBullet();
+	}
+
+}
 enemies.waves.seven = () => {
 	const size = 36, yOffset = gameHeight * .75, spawnEnemy = (x, y, opposite) => {
 		enemy = PIXI.Sprite.fromImage('img/enemy-four.png');
@@ -573,7 +710,8 @@ enemies.waves.seven = () => {
 		enemy.isEnemy = true;
 		enemy.type = 'seven';
 		enemy.speed = 3.5;
-		enemy.health = 40;
+		enemy.alcohol = true
+		enemy.health = 6;
 		enemy.score = 8210;
 		enemy.speedDiff = 0.04;
 		enemy.opposite = opposite;
@@ -660,7 +798,7 @@ waveSixDrop = x => {
 	enemy.x = x;
 	enemy.speed = 4.5;
 	enemy.speedDiff = 0.05;
-	enemy.health = 40;
+	enemy.health = 8;
 	enemy.score = 6250;
 	enemy.zIndex = 31;
 	game.stage.addChild(enemy);
@@ -700,7 +838,7 @@ enemies.waves.six = () => {
 	waveSixDrop(gameX + dropOffset);
 	waveSixDrop(gameX + gameWidth - dropOffset);
 
-	enemies.nextWave = 'seven';
+	enemies.nextWave = 'bossOne';
 };
 
 enemies.update.six = enemy => {
@@ -785,7 +923,7 @@ const waveTen = opposite => {
 		enemy.y = gameY - size / 2 - size * i;
 		enemy.score = 12000;
 		enemy.speedDiff = 0.05;
-		enemy.health = 50;
+		enemy.health = 7;
 		enemy.zIndex = 31;
 		enemy.dropClock = 0;
 		enemy.dropLimit = 60 * 3;
@@ -817,7 +955,7 @@ enemies.waves.ten = () => {
 
 enemies.waves.eleven = () => {
 	waveTen(true);
-	enemies.nextWave = 'ten';
+	enemies.nextWave = 'one';
 };
 
 enemies.update.ten = enemy => {
@@ -890,7 +1028,7 @@ eightDrop = opposite => {
 	enemy.dropClock = 0;
 	enemy.speedDiff = 0.025;
 	enemy.dropLimit = 60;
-	enemy.health = 30;
+	enemy.health = 5;
 	enemy.zIndex = 32;
 	if(opposite) enemy.opposite = true;
 	game.stage.addChild(enemy);
@@ -1022,7 +1160,7 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speed = 3;
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
-	enemy.health = 30;
+	enemy.health = 6;
 	enemy.score = 7575;
 	enemy.alcohol = true;
 	game.stage.addChild(enemy);
@@ -1115,7 +1253,7 @@ levelOneFirstWaveDrop = x => {
 	enemy.speed = enemy.speedInit;
 	enemy.speedMod = 0.06;
 	enemy.zIndex = 35;
-	enemy.health = 20;
+	enemy.health = 7;
 	enemy.score = 5500;
 	game.stage.addChild(enemy);
 },
@@ -1454,7 +1592,7 @@ const mainLoop = () => {
 	});
 	collision.update();
 
-	if(enemyCount == 0 && lastEnemyCount == 0) enemies.init();
+	if(enemyCount == 0 && lastEnemyCount == 0 && !bossData) enemies.init();
 	lastEnemyCount = enemyCount;
 	sortZIndex();
 },

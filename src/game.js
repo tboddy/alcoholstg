@@ -29,7 +29,7 @@ const mainLoop = () => {
 	});
 	collision.update();
 
-	if(enemyCount == 0 && lastEnemyCount == 0) enemies.init();
+	if(enemyCount == 0 && lastEnemyCount == 0 && !bossData) enemies.init();
 	lastEnemyCount = enemyCount;
 	sortZIndex();
 },

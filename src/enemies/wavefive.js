@@ -7,7 +7,8 @@ enemies.waves.seven = () => {
 		enemy.isEnemy = true;
 		enemy.type = 'seven';
 		enemy.speed = 3.5;
-		enemy.health = 40;
+		enemy.alcohol = true
+		enemy.health = 6;
 		enemy.score = 8210;
 		enemy.speedDiff = 0.04;
 		enemy.opposite = opposite;

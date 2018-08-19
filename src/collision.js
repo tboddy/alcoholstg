@@ -94,16 +94,21 @@ collision = {
 					if(bullet.x - bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x + bullet.width / 2 <= enemy.x + enemy.width / 2 &&
 						bullet.y - bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y + bullet.height / 2 <= enemy.y + enemy.height / 2 &&
 						bullet.y - bullet.height / 2 > gameY){
+						bullet.y = -gameHeight;
+						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
 							enemy.y = gameHeight * 2;
-							bullet.y = -gameHeight;
 							collision.sects[i][j].enemy = false;
-							collision.sects[i][j].bullet = false;
 							player.data.chain++;
 							player.data.chainTime = 0;
 							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
 							if(enemy.score) currentScore += enemy.score * player.data.punk;
+							if(bossData){
+								PIXI.setTimeout(1, () => {
+									bossData = false;
+								});
+							}
 						}
 					}
 				}

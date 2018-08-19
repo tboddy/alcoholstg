@@ -31,7 +31,7 @@ waveSixDrop = x => {
 	enemy.x = x;
 	enemy.speed = 4.5;
 	enemy.speedDiff = 0.05;
-	enemy.health = 40;
+	enemy.health = 8;
 	enemy.score = 6250;
 	enemy.zIndex = 31;
 	game.stage.addChild(enemy);
@@ -71,7 +71,7 @@ enemies.waves.six = () => {
 	waveSixDrop(gameX + dropOffset);
 	waveSixDrop(gameX + gameWidth - dropOffset);
 
-	enemies.nextWave = 'seven';
+	enemies.nextWave = 'bossOne';
 };
 
 enemies.update.six = enemy => {

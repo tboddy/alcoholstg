@@ -39,7 +39,7 @@ eightDrop = opposite => {
 	enemy.dropClock = 0;
 	enemy.speedDiff = 0.025;
 	enemy.dropLimit = 60;
-	enemy.health = 30;
+	enemy.health = 5;
 	enemy.zIndex = 32;
 	if(opposite) enemy.opposite = true;
 	game.stage.addChild(enemy);

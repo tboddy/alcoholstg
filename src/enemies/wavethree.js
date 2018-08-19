@@ -27,7 +27,7 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speed = 3;
 	enemy.opposite = opposite;
 	enemy.speedMod = 0.025;
-	enemy.health = 30;
+	enemy.health = 6;
 	enemy.score = 7575;
 	enemy.alcohol = true;
 	game.stage.addChild(enemy);
