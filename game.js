@@ -187,7 +187,7 @@ const background = {
 // 	}
 
 // };
-let drewGameOver = false;
+let drewGameOver = false, drewBoss = false;
 
 const fontStyle = () => {
 	return new PIXI.TextStyle({
@@ -377,6 +377,39 @@ chrome = {
 		};
 		main();
 		won();
+	},
+
+	drawBoss(boss){
+		if(!drewBoss){
+			drewBoss = true;
+			const bar = new PIXI.Graphics(), barIn = new PIXI.Graphics();
+
+			bar.zIndex = 100;
+			bar.lineStyle(0);
+			bar.beginFill(0x140c1c);
+			bar.drawRect(gameX + gameWidth / 4, gameY + grid / 2, gameWidth / 2, grid);
+			bar.endFill();
+			bar.isBossBarBg = true;
+			game.stage.addChild(bar);
+
+			barIn.zIndex = 101;
+			barIn.lineStyle(0);
+			barIn.beginFill(0xd04648);
+			barIn.drawRect(0, gameY + grid / 2 + 1, gameWidth / 2 - 2, grid - 2);
+			barIn.x = gameX + gameWidth / 4 + 1;
+			barIn.endFill();
+			barIn.isBossBar = true;
+			game.stage.addChild(barIn);
+		}
+		bossData = boss.health;
+	},
+
+	updateBossBar(bar){
+		if(!bar.maxHealth){
+			bar.maxHealth = bossData;
+			bar.maxWidth = bar.width;
+		}
+		bar.width = Math.floor(bossData / bar.maxHealth * bar.maxWidth);
 	},
 
 	init(){
@@ -734,7 +767,7 @@ enemies.waves.bossTwo = () => {
 	enemy.y = gameY - size / 2;
 	enemy.score = 100000;
 	enemy.isBoss = true;
-	enemy.health = 1;
+	enemy.health = 100;
 	bossData = enemy.health;
 	enemy.zIndex = 30.05;
 	enemy.speed = 2.65;
@@ -1807,6 +1840,8 @@ const mainLoop = () => {
 			enemies.update[child.type](child, i);
 			enemies.mainUpdate(child, i);
 			collision.placeItem(child, i);
+			if(child.isBoss) chrome.drawBoss(child);
+			else if(drewBoss) drewBoss = false;
 			enemyCount++;
 		} else if(child.isEnemyBullet){
 			enemies.bulletUpdate[child.type](child, i);
@@ -1819,6 +1854,11 @@ const mainLoop = () => {
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
+		else if(child.isBossBar){
+			chrome.updateBossBar(child);
+			if(!drewBoss) game.stage.removeChildAt(i)
+		}
+		else if(child.isBossBarBg && !drewBoss) game.stage.removeChildAt(i)
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);
 	});
 	collision.update();
@@ -1827,6 +1867,8 @@ const mainLoop = () => {
 	lastEnemyCount = enemyCount;
 
 	if(gameOver && !drewGameOver){
+		bossData = false;
+		drewBoss = false;
 		chrome.drawGameOver();
 	}
 

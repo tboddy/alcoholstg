@@ -13,6 +13,8 @@ const mainLoop = () => {
 			enemies.update[child.type](child, i);
 			enemies.mainUpdate(child, i);
 			collision.placeItem(child, i);
+			if(child.isBoss) chrome.drawBoss(child);
+			else if(drewBoss) drewBoss = false;
 			enemyCount++;
 		} else if(child.isEnemyBullet){
 			enemies.bulletUpdate[child.type](child, i);
@@ -25,6 +27,11 @@ const mainLoop = () => {
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
+		else if(child.isBossBar){
+			chrome.updateBossBar(child);
+			if(!drewBoss) game.stage.removeChildAt(i)
+		}
+		else if(child.isBossBarBg && !drewBoss) game.stage.removeChildAt(i)
 		else if(child.isCollisionHighlight) game.stage.removeChildAt(i);
 	});
 	collision.update();
@@ -33,6 +40,8 @@ const mainLoop = () => {
 	lastEnemyCount = enemyCount;
 
 	if(gameOver && !drewGameOver){
+		bossData = false;
+		drewBoss = false;
 		chrome.drawGameOver();
 	}
 

@@ -1,4 +1,4 @@
-let drewGameOver = false;
+let drewGameOver = false, drewBoss = false;
 
 const fontStyle = () => {
 	return new PIXI.TextStyle({
@@ -188,6 +188,39 @@ chrome = {
 		};
 		main();
 		won();
+	},
+
+	drawBoss(boss){
+		if(!drewBoss){
+			drewBoss = true;
+			const bar = new PIXI.Graphics(), barIn = new PIXI.Graphics();
+
+			bar.zIndex = 100;
+			bar.lineStyle(0);
+			bar.beginFill(0x140c1c);
+			bar.drawRect(gameX + gameWidth / 4, gameY + grid / 2, gameWidth / 2, grid);
+			bar.endFill();
+			bar.isBossBarBg = true;
+			game.stage.addChild(bar);
+
+			barIn.zIndex = 101;
+			barIn.lineStyle(0);
+			barIn.beginFill(0xd04648);
+			barIn.drawRect(0, gameY + grid / 2 + 1, gameWidth / 2 - 2, grid - 2);
+			barIn.x = gameX + gameWidth / 4 + 1;
+			barIn.endFill();
+			barIn.isBossBar = true;
+			game.stage.addChild(barIn);
+		}
+		bossData = boss.health;
+	},
+
+	updateBossBar(bar){
+		if(!bar.maxHealth){
+			bar.maxHealth = bossData;
+			bar.maxWidth = bar.width;
+		}
+		bar.width = Math.floor(bossData / bar.maxHealth * bar.maxWidth);
 	},
 
 	init(){
