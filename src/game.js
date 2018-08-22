@@ -30,9 +30,9 @@ const mainLoop = () => {
 		else if(child.isHighScore) chrome.updateHighScore(child);
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isLives) chrome.updateLives(child);
-		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isExplosion) explosions.updateExplosion(child, i);
+		else if(child.isChip) chip.update(child, i);
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);
@@ -60,8 +60,9 @@ startLoop = () => {
 },
 
 startInit = () => {
-	start.init();
+	// start.init();
 	game.ticker.add(startLoop);
+	gameInit();
 },
 
 gameInit = () => {
@@ -79,7 +80,8 @@ init = () => {
 	storage.get('savedData', (err, data) => {
 		savedData = data;
 		if(savedData.highScore) highScore = savedData.highScore;
-		PIXI.loader.add('crass', 'crass.xml').load(data => {
+		PIXI.loader.add('crass', 'crass.xml').
+			add('font', 'font.ttf').load(data => {
 			document.body.appendChild(game.view);
 			mapControls();
 			startInit();

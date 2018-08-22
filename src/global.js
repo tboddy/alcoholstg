@@ -1,7 +1,9 @@
 let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false, starting = true;
 
-const storage = require('electron-json-storage'), winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32,
-	grid = 16, gameX = (winWidth - gameWidth) / 2, gameY = grid, browserWindow = require('electron').remote,
+//gameX = (winWidth - gameWidth) / 2
+
+const storage = require('electron-json-storage'), winWidth = 640, winHeight = 480, gameWidth = 384, gameHeight = winHeight - 32,
+	grid = 16, gameX = grid * 2, gameY = grid, browserWindow = require('electron').remote,
 	mainWindow = browserWindow.getCurrentWindow(), game = new PIXI.Application(winWidth, winHeight, {
 		backgroundColor: 0x140c1c,
 		roundPixels: true
@@ -35,7 +37,7 @@ getAngle = (a, b) => {
 
 processScore = input => {
 	let scoreString = String(input);
-	for(j = scoreString.length; j < 6; j++){
+	for(j = scoreString.length; j < 8; j++){
 		scoreString = '0' + scoreString;
 	}
 	return scoreString;

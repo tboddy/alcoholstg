@@ -32,7 +32,6 @@ waveTenUpdate = enemy => {
 		if(enemy.speed <= 0) enemy.flipped = true;
 		else if(enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedDiff;
 	}
-	enemy.rotation += 0.02;
 };
 
 enemies.waves.ten = () => {

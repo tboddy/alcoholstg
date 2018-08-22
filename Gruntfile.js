@@ -11,6 +11,7 @@ module.exports = function(grunt) {
 					'src/explosion.js',
 					'src/start.js',
 					'src/collision.js',
+					'src/chips.js',
 					'src/enemies.js',
 					'src/enemies/*.js',
 					'src/player.js',

@@ -116,39 +116,39 @@ collision = {
 						}
 					}
 				}
-				// if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
-				// 	const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
-				// 	if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-				// 		bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			 //      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			 //      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-				// 		if(!gameOver) explosions.spawn(bullet, true);
-				// 		bullet.y = -gameHeight;
-				// 		if(player.data.lives - 1){
-				// 			player.data.invulnerableClock = 60 * 3;
-				// 			player.data.lives--;
-				// 		} else if(!gameOver) {
-				// 			gameOver = true;
-				// 		}
-				// 	}
-				// }
-				// if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
-				// 	const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
-				// 	if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-				// 		enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			 //      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			 //      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-				// 		if(!gameOver) explosions.spawn(enemy, true);
-				// 		enemy.y = gameHeight * 2;
-				// 		collision.sects[i][j].enemy = false;
-				// 		if(player.data.lives - 1){
-				// 			player.data.invulnerableClock = 60 * 3;
-				// 			player.data.lives--;
-				// 		} else if(!gameOver) {
-				// 			gameOver = true;
-				// 		}
-				// 	}
-				// }
+				if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
+					const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
+					if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+						bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+						if(!gameOver) explosions.spawn(bullet, true);
+						bullet.y = -gameHeight;
+						if(player.data.lives - 1){
+							player.data.invulnerableClock = 60 * 3;
+							player.data.lives--;
+						} else if(!gameOver) {
+							gameOver = true;
+						}
+					}
+				}
+				if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
+					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
+					if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+						enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+						if(!gameOver) explosions.spawn(enemy, true);
+						enemy.y = gameHeight * 2;
+						collision.sects[i][j].enemy = false;
+						if(player.data.lives - 1){
+							player.data.invulnerableClock = 60 * 3;
+							player.data.lives--;
+						} else if(!gameOver) {
+							gameOver = true;
+						}
+					}
+				}
 			}
 		}
 	},

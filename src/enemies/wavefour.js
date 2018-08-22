@@ -87,7 +87,6 @@ enemies.update.six = enemy => {
 
 enemies.update.sixDrop = enemy => {
 	enemy.y += enemy.speed;
-	enemy.rotation += 0.02;
 	if(enemy.flipped){
 		if(enemy.done) enemy.speed -= enemy.speedDiff;
 		else {

@@ -1,4 +1,4 @@
-const isMuted = false, bgmVol = 0.175, bgmMuted = false;
+const isMuted = true, bgmVol = 0.175, bgmMuted = false;
 
 sounds = {
 	bulletOne: new Howl({src: ['sound/bullet1.wav'], volume: .05}),
@@ -7,7 +7,7 @@ sounds = {
 	bulletPlayer: new Howl({src: ['sound/explosion.wav'], volume: .2}),
 	explosion: new Howl({src: ['sound/explosion.wav'], volume: .2}),
 	graze: new Howl({src: ['sound/graze.wav'], volume: 0.1}),
-	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], loop: true, volume: bgmVol}),
+	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], volume: bgmVol}),
 	bgmTwo: new Howl({src: ['sound/bgm-02.mp3'], loop: true, volume: bgmVol}),
 	bgmThree: new Howl({src: ['sound/bgm-03.mp3'], loop: true, volume: bgmVol}),
 	bgmFour: new Howl({src: ['sound/bgm-04.mp3'], loop: true, volume: bgmVol})
@@ -88,8 +88,10 @@ spawnSound = {
 }
 let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false, starting = true;
 
-const storage = require('electron-json-storage'), winWidth = 640, winHeight = 480, gameWidth = 384 - 32, gameHeight = winHeight - 32,
-	grid = 16, gameX = (winWidth - gameWidth) / 2, gameY = grid, browserWindow = require('electron').remote,
+//gameX = (winWidth - gameWidth) / 2
+
+const storage = require('electron-json-storage'), winWidth = 640, winHeight = 480, gameWidth = 384, gameHeight = winHeight - 32,
+	grid = 16, gameX = grid * 2, gameY = grid, browserWindow = require('electron').remote,
 	mainWindow = browserWindow.getCurrentWindow(), game = new PIXI.Application(winWidth, winHeight, {
 		backgroundColor: 0x140c1c,
 		roundPixels: true
@@ -123,7 +125,7 @@ getAngle = (a, b) => {
 
 processScore = input => {
 	let scoreString = String(input);
-	for(j = scoreString.length; j < 6; j++){
+	for(j = scoreString.length; j < 8; j++){
 		scoreString = '0' + scoreString;
 	}
 	return scoreString;
@@ -177,123 +179,58 @@ mapControls = () => {
 	document.addEventListener('keyup', keysUp);
 };
 const background = {
-
 	clock: 0,
+	bgTile: false,
 
 	draw(){
-		const bgGraphic = new PIXI.Graphics();
-		bgGraphic.lineStyle(0);
-		bgGraphic.beginFill(0x442434);
-		bgGraphic.drawRect(gameX, gameY, gameWidth, gameHeight);
-		bgGraphic.endFill();
-		bgGraphic.zIndex = 1;
-		game.stage.addChild(bgGraphic);
+
+		const container = new PIXI.projection.Container2d();
+		container.x = gameX;
+		container.y = gameY;
+		container.zIndex = 1;
+
+		background.bgTile = new PIXI.projection.TilingSprite2d(new PIXI.Texture.fromImage('img/bg.png'));
+		background.bgTile.width = gameWidth;
+		background.bgTile.height = gameHeight / 2;
+		background.bgTile.x = 0;
+		background.bgTile.y = 0;
+
+		game.stage.addChild(container);
+		container.addChild(background.bgTile);
+
+		const pos = container.toLocal({x: gameX + gameWidth / 2, y: -grid * 10}, undefined, undefined, undefined, PIXI.projection.TRANSFORM_STEP.BEFORE_PROJ);
+		pos.y = -pos.y;
+		pos.x = -pos.x;
+		container.proj.setAxisY(pos, -1);
+
 	},
 
-	spawn(){
-		const type = Math.floor(Math.random() * 3);
-		let img = 'img/star-tiny.png', speed = 1, size = 4, zIndex = 4;
-		if(type == 1){
-			img = 'img/star-small.png';
-			speed *= 2;
-			size = 8;
-			zIndex = 2;
-		} else if(type == 2){
-			img = 'img/star-big.png';
-			speed *= 4;
-			size = 16;
-			zIndex = 3;
-		}
-		const star = PIXI.Sprite.fromImage(img);
-		star.anchor.set(0.5);
-		star.speed = speed;
-		star.y = gameY - size / 2;
-		star.x = gameX + Math.floor(Math.random() * gameWidth);
-		star.zIndex = zIndex;
-		star.isBackground = true;
-		game.stage.addChild(star);
-	},
-
-	spawnUpdate(){
-		if(background.clock % 15 == 0) background.spawn();
-		background.clock++;
-	},
-
-	update(star, i){
-		star.y += star.speed;
-		if(star.y > gameY + gameHeight + star.height / 2) game.stage.removeChildAt(i);
+	update(){
+		background.bgTile.tilePosition.y += 1;
 	},
 
 	init(){
 		background.draw();
-		game.ticker.add(background.spawnUpdate);
+		game.ticker.add(background.update);
 	}
 
 };
-
-// const starTime = 5;
-
-// const background = {
-
-// 	dump: {},
-
-// 	spawn(){
-// 		let size = 4, speed = 10, image = images.starTiny;
-// 		const type = Math.floor(Math.random() * 3);
-// 		if(type == 1){
-// 			size = 8;
-// 			speed = 15;
-// 			image = images.starSmall;
-// 		} else if(type == 2){
-// 			size = 16;
-// 			speed = 20;
-// 			image = images.starBig;
-// 		}
-// 		const isAlt = Math.floor(Math.random() * 3),
-// 		starObj = {
-// 			position: {x: Math.floor(Math.random() * gameWidth), y: -size},
-// 			speed: speed,
-// 			type: type,
-// 			image: image,
-// 			id: randomId()
-// 		};
-// 		background.dump[starObj.id] = starObj
-// 	},
-
-// 	update(){
-// 		const updateStar = star => {
-// 			star.position.y += star.speed;
-// 			if(star.position.y >= gameHeight) delete background.dump[star.id]
-// 		};
-// 		for(star in background.dump) updateStar(background.dump[star]);
-// 		if(gameClock % starTime == 0) background.spawn();
-// 	},
-
-// 	draw(){
-// 		const drawStar = star => {
-// 			drawImage(star.image, star.position.x, star.position.y);
-// 		};
-// 		drawRect(0, 0, gameWidth, gameHeight, colors.dark)
-// 		for(star in background.dump) drawStar(background.dump[star]);
-// 	}
-
-// };
 let drewGameOver = false, drewBoss = false;
 
 const fontStyle = () => {
 	return new PIXI.TextStyle({
 		fill: colors.light,
-		fontFamily: 'bitmap',
-		fontSize: 14
+		fontFamily: 'dies',
+		fontSize: 16
 	});
 },
 
-sidebarWidth = (winWidth - gameWidth) / 2,
-
 chrome = {
 
-	drawLabel(input, x, y, type){
-		const label = new PIXI.extras.BitmapText(input, {font: '12px crass'});
+	drawLabel(input, x, y, type, color){
+		const style = fontStyle();
+		if(color) style.fill = color;
+		const label = new PIXI.Text(input.toUpperCase(), style);
 		label.x = x ? gameX + gameWidth + grid : winWidth - label.width - grid;
 		label.y = y;
 		label.zIndex = 101;
@@ -303,30 +240,28 @@ chrome = {
 
 	drawStats(){
 		const drawScore = () => {
-			chrome.drawLabel('HI', true, grid );
-			chrome.drawLabel(processScore(highScore), false, grid, 'isHighScore');
-			chrome.drawLabel('SC', true, grid * 2);
-			chrome.drawLabel(processScore(currentScore), false, grid * 2, 'isScore');
+			chrome.drawLabel('hiscore', true, grid * 2);
+			chrome.drawLabel(processScore(highScore), false, grid * 2, 'isHighScore');
+			chrome.drawLabel('score', true, grid * 3);
+			chrome.drawLabel(processScore(currentScore), false, grid * 3, 'isScore');
 		}, drawLives = () => {
-			let str = '';
-			for(i = 0; i < player.data.lives - 1; i++) str += 'X'
-			chrome.drawLabel('player', true, grid * 4);
-			chrome.drawLabel(str, false, grid * 4, 'isLives');
+			chrome.drawLabel('player', true, grid * 5);
+			chrome.drawLabel('', false, grid * 5, 'isLives', colors.red);
 		}, drawBombs = () => {
 			let str = '';
 			for(i = 0; i < player.data.bombs; i++) str += 'X'
-			chrome.drawLabel('bomb', true, grid * 5);
-			chrome.drawLabel(str, false, grid * 5);
+			chrome.drawLabel('bomb', true, grid * 6);
+			// chrome.drawLabel(str, false, grid * 6, 'isBombs', colors.red);
 		}, drawPunk = () => {
-			chrome.drawLabel('punk', true, grid * 6);
-			chrome.drawLabel('1X', false, grid * 6, 'isPunk');
+			chrome.drawLabel('multi', true, grid * 8);
+			chrome.drawLabel('1X', false, grid * 8, 'isPunk', colors.red);
 		}, drawDrunk = () => {
-			chrome.drawLabel('drunk', true, grid * 7);
-			chrome.drawLabel('0.00', false, grid * 7, 'isDrunk');
+			chrome.drawLabel('drunk', true, grid * 9);
+			chrome.drawLabel('0.00', false, grid * 9, 'isDrunk', colors.red);
 		}
 		drawScore();
 		drawLives();
-		// drawBombs(); no time for bombs :(
+		drawBombs();
 		drawPunk();
 		drawDrunk();
 	},
@@ -338,20 +273,22 @@ chrome = {
 		borderGraphics.beginFill(0x140c1c);
 		borderGraphics.drawRect(0, 0, winWidth, grid);
 		borderGraphics.drawRect(0, winHeight - grid, winWidth, grid);
-		borderGraphics.drawRect(0, grid, sidebarWidth, gameHeight);
-		borderGraphics.drawRect(gameX + gameWidth, grid, sidebarWidth, gameHeight);
+		borderGraphics.drawRect(0, grid, grid * 2, gameHeight);
+		borderGraphics.drawRect(gameX + gameWidth, grid, winWidth - gameWidth - gameX, gameHeight);
 		borderGraphics.endFill();
 		game.stage.addChild(borderGraphics);
 		const borderImage = PIXI.Sprite.fromImage('img/border.png');
-		borderImage.anchor.set(0.5);
-		borderImage.x = winWidth / 2;
-		borderImage.y = winHeight / 2;
+		// borderImage.anchor.set(0.5);
+		borderImage.x = grid * 2 - 3;
+		borderImage.y = grid - 3;
 		borderImage.zIndex = 101;
 		game.stage.addChild(borderImage);
 	},
 
 	drawFps(){
-		const label = new PIXI.extras.BitmapText(game.ticker.FPS.toFixed(2), {font: '12px crass'});
+		const style = fontStyle();
+		style.fill = colors.purple;
+		const label = new PIXI.Text('00.00 FPS', style);
 		label.zIndex = 101;
 		label.isFps = true;
 		label.x = winWidth - label.width - grid;
@@ -359,12 +296,18 @@ chrome = {
 		game.stage.addChild(label);
 	},
 
+	updateLives(label){
+		let str = '';
+		for(i = 0; i < player.data.lives - 1; i++) str += 'X'
+		if(label.text != str){
+			label.text = str;
+			label.x = winWidth - label.width - grid;
+		}
+	},
+
 	updateFps(label){
 		if(Math.round(game.ticker.lastTime / 50) % 2 == 0){
-			if(!label.didDo){
-				label.text = game.ticker.FPS.toFixed(2) + ' FPS'
-				label.x = winWidth - label.width - grid;
-			}
+			if(!label.didDo)label.text = game.ticker.FPS.toFixed(2) + ' FPS'
 			label.didDo = true;
 		} else if(label.didDo) label.didDo = false;
 	},
@@ -382,8 +325,8 @@ chrome = {
 		if(player.data.chain >= 5 && player.data.chain < 15) player.data.punk = 2;
 		else if(player.data.chain >= 15 && player.data.chain < 30) player.data.punk = 3;
 		else if(player.data.chain >= 30) player.data.punk = 4;
-		if(label.text != player.data.punk + 'X'){
-			label.text = player.data.punk + 'X';
+		if(label.text != player.data.punk + 'x'){
+			label.text = player.data.punk + 'x';
 			label.x = winWidth - label.width - grid;
 		}
 		if(player.data.chainTime >= player.data.chainLimit && player.data.chain){
@@ -409,17 +352,7 @@ chrome = {
 		}
 	},
 
-	updateLives(label){
-		let str = '';
-		for(i = 0; i < player.data.lives - 1; i++) str += 'X'
-		if(label.text != str){
-			label.text = str;
-			label.x = winWidth - label.width - grid;
-		}
-	},
-
 	drawDebug(){
-
 		const drawDebugLabel = (input, x, y, type) => {
 			const label = new PIXI.extras.BitmapText(input, {font: '12px crass'});
 			label.x = x ? grid : gameX - label.width - grid;
@@ -429,22 +362,15 @@ chrome = {
 				label.isDebug = true;
 				label[type] = true;
 			}
-			label.alpha = 0
 			game.stage.addChild(label);
 		};
-
 		drawDebugLabel('DEBUG', true, grid);
-
 		drawDebugLabel('TIME', true, grid * 3);
 		drawDebugLabel('0', false, grid * 3, 'isTime');
-
 		drawDebugLabel('ENEMY', true, grid * 4);
 		drawDebugLabel('0', false, grid * 4, 'isEnemyCount');
-
 		drawDebugLabel('SHOT', true, grid * 5);
 		drawDebugLabel('0', false, grid * 5, 'isBulletCount');
-
-
 	},
 
 	updateDebug(child){
@@ -459,50 +385,46 @@ chrome = {
 
 	drawLogo(){
 		const logo = PIXI.Sprite.fromImage('img/logo-sidebar.png');
+		const height = 98, width = 112;
 		logo.anchor.set(0.5);
-		const offset = gameWidth + gameX
-		logo.x = offset + ((winWidth - offset) / 2);
-		logo.y = winHeight - grid * 7;
+		logo.x = gameX + gameWidth + (winWidth - (gameX + gameWidth)) / 2
+		logo.y = grid * 22;
 		logo.zIndex = 101;
+		logo.scale.set(1.2);
 		game.stage.addChild(logo);
 	},
 
 	drawGameOver(){
 		drewGameOver = true;
-		const main = () => {
-			const label = new PIXI.extras.BitmapText('game over', {font: '12px crass'});
+		const drawLabel = (input, y, color) => {
+			const style = fontStyle();
+			style.dropShadow = true;
+			style.dropShadowAlpha = 1;
+			style.dropShadowAngle = Math.PI / 2;
+			style.dropShadowDistance = 1;
+			style.dropShadowColor = colors.dark;
+			if(color) style.fill = color;
+			const label = new PIXI.Text(input.toUpperCase(), style);
 			label.anchor.set(0.5);
-			label.x = winWidth / 2;
-			label.y = winHeight / 2 - grid - 8;
+			label.x = gameX + gameWidth / 2;
+			label.y = y;
 			label.zIndex = 105;
+			label.scale.set(2)
 			game.stage.addChild(label);
+		}, main = () => {
+			drawLabel('game  over', grid * 8);
 		}, won = () => {
-			const str = wonGame ? 'you won' : 'you died';
-			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
-			label.anchor.set(0.5);
-			label.x = winWidth / 2;
-			label.y = winHeight / 2 - 8;
-			label.zIndex = 105;
-			game.stage.addChild(label);
+			drawLabel(wonGame ? 'you won' : 'you lose', grid * 10);
 		}, score = () => {
-			const str = currentScore >= highScore ? 'new: high score' : 'please drink more'
-			const label = new PIXI.extras.BitmapText(str, {font: '12px crass'});
-			label.anchor.set(0.5);
-			label.x = winWidth / 2;
-			label.y = winHeight / 2 + 8;
-			label.zIndex = 105;
-			game.stage.addChild(label);
+			drawLabel(currentScore >= highScore ? 'new high score' : 'please', winHeight / 2 - grid);
+			drawLabel(currentScore >= highScore ? processScore(currentScore) : 'drink more', winHeight / 2 + grid);
 			if(currentScore >= highScore){
 				savedData.highScore = currentScore;
 				storage.set('savedData', savedData);
 			}
 		}, prompt = () => {
-			const label = new PIXI.extras.BitmapText('press r to try again', {font: '12px crass'});
-			label.anchor.set(0.5);
-			label.x = winWidth / 2;
-			label.y = winHeight / 2 + grid + 8;
-			label.zIndex = 105;
-			game.stage.addChild(label);
+			drawLabel('press r', winHeight - grid * 10);
+			drawLabel('to restart', winHeight - grid * 8);
 		};
 		main();
 		won();
@@ -546,9 +468,9 @@ chrome = {
 	init(){
 		chrome.drawBorders();
 		chrome.drawFps();
-		chrome.drawDebug();
 		chrome.drawStats();
-		chrome.drawLogo();
+		// chrome.drawDebug();
+		// chrome.drawLogo();
 	}
 
 };
@@ -557,7 +479,6 @@ const explosions = {
 	interval: 4,
 	spawnTime: 12,
 	spawnClock: 0,
-	size: 32,
 
 	spawn(bullet, big){
 			const explosion = PIXI.Sprite.fromImage('img/explosiona.png');
@@ -566,15 +487,12 @@ const explosions = {
 			explosion.textureD = PIXI.Texture.fromImage('img/explosiond.png');
 			explosion.textureE = PIXI.Texture.fromImage('img/explosione.png');
 			explosion.anchor.set(0.5);
-			explosion.height = explosions.size;
-			explosion.width = explosions.size;
 			explosion.x = bullet.x;
 			explosion.y = bullet.y;
 			explosion.clock = -1;
 			explosion.zIndex = 100;
 			explosion.isExplosion = true;
-			explosion.scale.set(big ? 3 : 2);
-			if(big) explosion.big = true;
+			if(big) explosion.scale.set(2);
 			game.stage.addChild(explosion);
 
 			explosions.spawnClock = 1;
@@ -583,7 +501,7 @@ const explosions = {
 
 	updateExplosion(explosion, i){
 		explosion.clock++;
-		const interval = explosion.big ? 5 : 3;
+		const interval = explosion.big ? 6 : 3;
 		if(explosion.clock == interval) explosion.texture = explosion.textureB;
 		else if(explosion.clock == interval * 2) explosion.texture = explosion.textureC;
 		else if(explosion.clock == interval * 3) explosion.texture = explosion.textureD;
@@ -775,39 +693,39 @@ collision = {
 						}
 					}
 				}
-				// if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
-				// 	const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
-				// 	if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-				// 		bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			 //      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			 //      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-				// 		if(!gameOver) explosions.spawn(bullet, true);
-				// 		bullet.y = -gameHeight;
-				// 		if(player.data.lives - 1){
-				// 			player.data.invulnerableClock = 60 * 3;
-				// 			player.data.lives--;
-				// 		} else if(!gameOver) {
-				// 			gameOver = true;
-				// 		}
-				// 	}
-				// }
-				// if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
-				// 	const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
-				// 	if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-				// 		enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			 //      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			 //      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-				// 		if(!gameOver) explosions.spawn(enemy, true);
-				// 		enemy.y = gameHeight * 2;
-				// 		collision.sects[i][j].enemy = false;
-				// 		if(player.data.lives - 1){
-				// 			player.data.invulnerableClock = 60 * 3;
-				// 			player.data.lives--;
-				// 		} else if(!gameOver) {
-				// 			gameOver = true;
-				// 		}
-				// 	}
-				// }
+				if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
+					const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
+					if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+						bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+						if(!gameOver) explosions.spawn(bullet, true);
+						bullet.y = -gameHeight;
+						if(player.data.lives - 1){
+							player.data.invulnerableClock = 60 * 3;
+							player.data.lives--;
+						} else if(!gameOver) {
+							gameOver = true;
+						}
+					}
+				}
+				if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
+					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
+					if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+						enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+			      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+			      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+						if(!gameOver) explosions.spawn(enemy, true);
+						enemy.y = gameHeight * 2;
+						collision.sects[i][j].enemy = false;
+						if(player.data.lives - 1){
+							player.data.invulnerableClock = 60 * 3;
+							player.data.lives--;
+						} else if(!gameOver) {
+							gameOver = true;
+						}
+					}
+				}
 			}
 		}
 	},
@@ -850,6 +768,17 @@ collision = {
 	}
 
 }
+const chips = {
+
+	spawn(enemy){
+		console.log(enemy);
+	},
+
+	update(chip, i){
+
+	}
+
+};
 const enemies = {
 
 	currentWave: false,
@@ -935,7 +864,7 @@ enemies.update.bossOne = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
-	enemy.rotation = getAngle(enemy, player.data) + (Math.PI / 2)
+	// enemy.rotation = getAngle(enemy, player.data) + (Math.PI / 2)
 };
 
 const bossOneCardOne = enemy => {
@@ -955,6 +884,8 @@ const bossOneCardOne = enemy => {
 				if(enemy.clock >= dirClock && enemy.clock < dirClock * 2){
 					bullet.velocity.x = -Math.cos(angle) * -speed
 				}
+				bullet.velocity.x = parseFloat(bullet.velocity.x.toFixed(2));
+				bullet.velocity.y = parseFloat(bullet.velocity.y.toFixed(2));
 				bullet.type = 'bossOneCardOne';
 				game.stage.addChild(bullet);
 			}
@@ -992,18 +923,21 @@ const bossOneCardTwo = enemy => {
 		}
 		spawnSound.bulletThree();
 	};
-	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60;
+	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60, rotationTime = 0.005;
 	if(enemy.clock % interval == 0) spawnBullets();
 	if(enemy.clock < enemy.intervalA + sec){
 		enemy.y += ySpeed;
 		enemy.x -= xSpeed;
+		enemy.rotation -= rotationTime;
 	} else if(enemy.clock >= enemy.intervalA + (sec * 2) &&
 		enemy.clock < enemy.intervalA + (sec * 3)){
 		enemy.y -= ySpeed;
 		enemy.x += xSpeed * 2;
+		enemy.rotation += rotationTime * 2;
 	} else if(enemy.clock >= enemy.intervalA + (sec * 4) &&
 		enemy.clock < enemy.intervalA + (sec * 5)){
 		enemy.x -= xSpeed;
+		enemy.rotation -= rotationTime;
 	}
 };
 
@@ -1394,7 +1328,6 @@ enemies.update.six = enemy => {
 
 enemies.update.sixDrop = enemy => {
 	enemy.y += enemy.speed;
-	enemy.rotation += 0.02;
 	if(enemy.flipped){
 		if(enemy.done) enemy.speed -= enemy.speedDiff;
 		else {
@@ -1486,7 +1419,6 @@ waveTenUpdate = enemy => {
 		if(enemy.speed <= 0) enemy.flipped = true;
 		else if(enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedDiff;
 	}
-	enemy.rotation += 0.02;
 };
 
 enemies.waves.ten = () => {
@@ -1878,7 +1810,6 @@ enemies.update.oneDrop = enemy => {
 	enemy.y += enemy.speed;
 	if(enemy.y >= gameY - enemy.height / 2){
 		enemy.speed -= enemy.fired ? enemy.speedMod / 4 : enemy.speedMod;
-		enemy.rotation += 0.02;
 		if(!enemy.fired && enemy.speed <= -0.5) levelOneFirstWaveDropBullet(enemy);
 	}
 };
@@ -2207,9 +2138,9 @@ const mainLoop = () => {
 		else if(child.isHighScore) chrome.updateHighScore(child);
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isLives) chrome.updateLives(child);
-		else if(child.isBackground) background.update(child, i);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isExplosion) explosions.updateExplosion(child, i);
+		else if(child.isChip) chip.update(child, i);
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);
@@ -2237,8 +2168,9 @@ startLoop = () => {
 },
 
 startInit = () => {
-	start.init();
+	// start.init();
 	game.ticker.add(startLoop);
+	gameInit();
 },
 
 gameInit = () => {
@@ -2256,7 +2188,8 @@ init = () => {
 	storage.get('savedData', (err, data) => {
 		savedData = data;
 		if(savedData.highScore) highScore = savedData.highScore;
-		PIXI.loader.add('crass', 'crass.xml').load(data => {
+		PIXI.loader.add('crass', 'crass.xml').
+			add('font', 'font.ttf').load(data => {
 			document.body.appendChild(game.view);
 			mapControls();
 			startInit();

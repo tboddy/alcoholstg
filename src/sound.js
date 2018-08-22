@@ -1,4 +1,4 @@
-const isMuted = false, bgmVol = 0.175, bgmMuted = false;
+const isMuted = true, bgmVol = 0.175, bgmMuted = false;
 
 sounds = {
 	bulletOne: new Howl({src: ['sound/bullet1.wav'], volume: .05}),
@@ -7,7 +7,7 @@ sounds = {
 	bulletPlayer: new Howl({src: ['sound/explosion.wav'], volume: .2}),
 	explosion: new Howl({src: ['sound/explosion.wav'], volume: .2}),
 	graze: new Howl({src: ['sound/graze.wav'], volume: 0.1}),
-	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], loop: true, volume: bgmVol}),
+	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], volume: bgmVol}),
 	bgmTwo: new Howl({src: ['sound/bgm-02.mp3'], loop: true, volume: bgmVol}),
 	bgmThree: new Howl({src: ['sound/bgm-03.mp3'], loop: true, volume: bgmVol}),
 	bgmFour: new Howl({src: ['sound/bgm-04.mp3'], loop: true, volume: bgmVol})

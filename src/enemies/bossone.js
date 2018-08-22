@@ -35,7 +35,7 @@ enemies.update.bossOne = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
-	enemy.rotation = getAngle(enemy, player.data) + (Math.PI / 2)
+	// enemy.rotation = getAngle(enemy, player.data) + (Math.PI / 2)
 };
 
 const bossOneCardOne = enemy => {
@@ -55,6 +55,8 @@ const bossOneCardOne = enemy => {
 				if(enemy.clock >= dirClock && enemy.clock < dirClock * 2){
 					bullet.velocity.x = -Math.cos(angle) * -speed
 				}
+				bullet.velocity.x = parseFloat(bullet.velocity.x.toFixed(2));
+				bullet.velocity.y = parseFloat(bullet.velocity.y.toFixed(2));
 				bullet.type = 'bossOneCardOne';
 				game.stage.addChild(bullet);
 			}
@@ -92,18 +94,21 @@ const bossOneCardTwo = enemy => {
 		}
 		spawnSound.bulletThree();
 	};
-	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60;
+	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60, rotationTime = 0.005;
 	if(enemy.clock % interval == 0) spawnBullets();
 	if(enemy.clock < enemy.intervalA + sec){
 		enemy.y += ySpeed;
 		enemy.x -= xSpeed;
+		enemy.rotation -= rotationTime;
 	} else if(enemy.clock >= enemy.intervalA + (sec * 2) &&
 		enemy.clock < enemy.intervalA + (sec * 3)){
 		enemy.y -= ySpeed;
 		enemy.x += xSpeed * 2;
+		enemy.rotation += rotationTime * 2;
 	} else if(enemy.clock >= enemy.intervalA + (sec * 4) &&
 		enemy.clock < enemy.intervalA + (sec * 5)){
 		enemy.x -= xSpeed;
+		enemy.rotation -= rotationTime;
 	}
 };
 

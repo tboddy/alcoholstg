@@ -110,7 +110,6 @@ enemies.update.oneDrop = enemy => {
 	enemy.y += enemy.speed;
 	if(enemy.y >= gameY - enemy.height / 2){
 		enemy.speed -= enemy.fired ? enemy.speedMod / 4 : enemy.speedMod;
-		enemy.rotation += 0.02;
 		if(!enemy.fired && enemy.speed <= -0.5) levelOneFirstWaveDropBullet(enemy);
 	}
 };

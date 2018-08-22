@@ -3,7 +3,6 @@ const explosions = {
 	interval: 4,
 	spawnTime: 12,
 	spawnClock: 0,
-	size: 32,
 
 	spawn(bullet, big){
 			const explosion = PIXI.Sprite.fromImage('img/explosiona.png');
@@ -12,15 +11,12 @@ const explosions = {
 			explosion.textureD = PIXI.Texture.fromImage('img/explosiond.png');
 			explosion.textureE = PIXI.Texture.fromImage('img/explosione.png');
 			explosion.anchor.set(0.5);
-			explosion.height = explosions.size;
-			explosion.width = explosions.size;
 			explosion.x = bullet.x;
 			explosion.y = bullet.y;
 			explosion.clock = -1;
 			explosion.zIndex = 100;
 			explosion.isExplosion = true;
-			explosion.scale.set(big ? 3 : 2);
-			if(big) explosion.big = true;
+			if(big) explosion.scale.set(2);
 			game.stage.addChild(explosion);
 
 			explosions.spawnClock = 1;
@@ -29,7 +25,7 @@ const explosions = {
 
 	updateExplosion(explosion, i){
 		explosion.clock++;
-		const interval = explosion.big ? 5 : 3;
+		const interval = explosion.big ? 6 : 3;
 		if(explosion.clock == interval) explosion.texture = explosion.textureB;
 		else if(explosion.clock == interval * 2) explosion.texture = explosion.textureC;
 		else if(explosion.clock == interval * 3) explosion.texture = explosion.textureD;
