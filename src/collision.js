@@ -123,13 +123,15 @@ collision = {
 							bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
 				      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
 				      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-							if(!gameOver) explosions.spawn(bullet, true);
-							bullet.y = -gameHeight;
-							if(player.data.lives - 1){
-								player.data.invulnerableClock = 60 * 3;
-								player.data.lives--;
-							} else if(!gameOver) {
-								gameOver = true;
+							if(!gameOver){
+								explosions.spawn(bullet, false, true);
+								bullet.y = -gameHeight;
+								if(player.data.lives - 1){
+									player.data.invulnerableClock = 60 * 3;
+									player.data.lives--;
+								} else if(!gameOver) {
+									gameOver = true;
+								}
 							}
 						}
 					}
@@ -139,14 +141,16 @@ collision = {
 							enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
 				      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
 				      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-							if(!gameOver) explosions.spawn(enemy, true);
-							enemy.y = gameHeight * 2;
-							collision.sects[i][j].enemy = false;
-							if(player.data.lives - 1){
-								player.data.invulnerableClock = 60 * 3;
-								player.data.lives--;
-							} else if(!gameOver) {
-								gameOver = true;
+							if(!gameOver){
+								explosions.spawn(enemy, false, true);
+								enemy.y = gameHeight * 2;
+								collision.sects[i][j].enemy = false;
+								if(player.data.lives - 1){
+									player.data.invulnerableClock = 60 * 3;
+									player.data.lives--;
+								} else if(!gameOver) {
+									gameOver = true;
+								}
 							}
 						}
 					}
