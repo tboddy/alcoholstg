@@ -44,28 +44,35 @@ const bossOneCardOne = enemy => {
 		let oAngle = 0;
 		const count = 10;
 		for(i = 0; i < count; i++){
-			const spawnSub = (angle, index, oIndex) => {
+			const spawnSub = (angle, offset) => {
+				if(offset){
+					if(enemy.clock >= dirClock && enemy.clock < dirClock * 2) angle -= offset / count;
+					else angle += offset / count;
+				}
 				const bullet = PIXI.Sprite.fromImage('img/bullet-pink-big.png');
 				bullet.anchor.set(0.5);
 				bullet.isEnemyBullet = true;
-				bullet.x = enemy.x;
-				bullet.y = enemy.y;
+				bullet.initX = enemy.x;
+				bullet.initY = enemy.y;
+				bullet.x = bullet.initX;
+				bullet.y = bullet.initY;
+				bullet.angle = angle;
+				bullet.alpha = 0;
+				if(offset){
+					bullet.x += Math.cos(angle) * (offset * 20);
+					bullet.y += Math.sin(angle) * (offset * 20);
+				}
 				const speed = 3;
 				bullet.velocity = {x: -Math.cos(angle) * speed, y: -Math.sin(angle) * speed};
-				if(enemy.clock >= dirClock && enemy.clock < dirClock * 2){
-					bullet.velocity.x = -Math.cos(angle) * -speed
-				}
-				bullet.velocity.x = parseFloat(bullet.velocity.x.toFixed(2));
-				bullet.velocity.y = parseFloat(bullet.velocity.y.toFixed(2));
 				bullet.type = 'bossOneCardOne';
 				game.stage.addChild(bullet);
 			}
-			let sCount = 0, tempAngle = oAngle;
-			for(j = 0; j < count - 3; j++) PIXI.setTimeout(.05 * j, () => {
-				spawnSub(tempAngle + (sCount * .075), sCount)
-				sCount++;
-				spawnSound.bulletOne();
-			});
+			spawnSub(oAngle)
+			spawnSub(oAngle, 1)
+			spawnSub(oAngle, 2)
+			spawnSub(oAngle, 3)
+			spawnSub(oAngle, 4)
+			spawnSound.bulletOne();
 			oAngle += Math.PI / (count / 2);
 		}
 	}
@@ -74,6 +81,10 @@ const bossOneCardOne = enemy => {
 enemies.bulletUpdate.bossOneCardOne = bullet => {
 	bullet.y += bullet.velocity.y;
 	bullet.x += bullet.velocity.x;
+	if(bullet.alpha == 0){
+		if((bullet.velocity.x > 0 && bullet.x >= bullet.initX) || (bullet.velocity.x < 0 && bullet.x <= bullet.initX)) bullet.alpha = 1;
+		if((bullet.velocity.y > 0 && bullet.y >= bullet.initY) || (bullet.velocity.y < 0 && bullet.xy <= bullet.initY)) bullet.alpha = 1;
+	}
 };
 
 const bossOneCardTwo = enemy => {
