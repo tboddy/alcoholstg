@@ -152,18 +152,17 @@ collision = {
 					}
 					if(collision.sects[i][j].chip){
 						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
-						// console.log(chip.x + chip.width / 2 >= player.x - player.width / 2)
 						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
 							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
 				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
 				      chip.y - chip.height / 2 <= player.data.y + player.data.height / 2){
 							currentScore += chip.score;
+							chips.spawnScore(chip);
 							chip.y = gameHeight * 2;
 							collision.sects[i][j].score = false;
 						}
 					}
 				}
-
 			}
 		}
 	},

@@ -37,6 +37,7 @@ const mainLoop = () => {
 			collision.placeItem(child, i);
 			chipCount++;
 		}
+		else if(child.isChipScore) chips.updateScore(child, i);
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);

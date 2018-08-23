@@ -726,18 +726,17 @@ collision = {
 					}
 					if(collision.sects[i][j].chip){
 						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
-						// console.log(chip.x + chip.width / 2 >= player.x - player.width / 2)
 						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
 							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
 				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
 				      chip.y - chip.height / 2 <= player.data.y + player.data.height / 2){
 							currentScore += chip.score;
+							chips.spawnScore(chip);
 							chip.y = gameHeight * 2;
 							collision.sects[i][j].score = false;
 						}
 					}
 				}
-
 			}
 		}
 	},
@@ -797,11 +796,37 @@ const chips = {
 		game.stage.addChild(chip);
 	},
 
+	spawnScore(chip){
+		const chipScore = new PIXI.Text(String(chip.score), new PIXI.TextStyle({
+			fill: colors.light,
+			fontFamily: 'dies',
+			fontSize: 16,
+			dropShadow: true,
+			dropShadowAlpha: 1,
+			dropShadowAngle: Math.PI / 2,
+			dropShadowDistance: 1,
+			dropShadowColor: colors.dark
+		}));
+		chipScore.anchor.set(0.5);
+		chipScore.x = chip.x;
+		chipScore.y = chip.y;
+		chipScore.zIndex = 999;
+		chipScore.isChipScore = true;
+		chipScore.clock = 0;
+		chipScore.limit = 60;
+		game.stage.addChild(chipScore);
+	},
+
 	update(chip, i){
 		chip.score = Math.floor((winHeight - chip.y) * chip.scoreBase)
 		chip.y -= chip.speed;
 		if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
 		if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
+	},
+
+	updateScore(chipScore, i){
+		chipScore.clock++;
+		if(chipScore.clock >= chipScore.limit) game.stage.removeChildAt(i);
 	}
 
 };
@@ -2171,6 +2196,7 @@ const mainLoop = () => {
 			collision.placeItem(child, i);
 			chipCount++;
 		}
+		else if(child.isChipScore) chips.updateScore(child, i);
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);
