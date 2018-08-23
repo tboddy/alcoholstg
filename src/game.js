@@ -1,8 +1,9 @@
-let lastEnemyCount = 0, enemyCount = 0, bulletCount = 0;
+let lastEnemyCount = 0, enemyCount = 0, bulletCount = 0, chipCount = 0;
 
 const mainLoop = () => {
 	enemyCount = 0;
 	bulletCount = 0;
+	chipCount = 0;
 
 	game.stage.children.forEach((child, i) => {
 		if(child.isBullet){
@@ -22,7 +23,6 @@ const mainLoop = () => {
 			collision.placeItem(child, i);
 			bulletCount++;
 		} else if(child.isPlayer){
-			// console.log('ffff')
 			collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
 		else if(child.isDrunk) chrome.updateDrunk(child);
@@ -31,8 +31,12 @@ const mainLoop = () => {
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isDebug) chrome.updateDebug(child);
-		else if(child.isExplosion) explosions.updateExplosion(child, i);
-		else if(child.isChip) chip.update(child, i);
+		else if(child.isExplosion) explosions.update(child, i);
+		else if(child.isChip){
+			chips.update(child, i);
+			collision.placeItem(child, i);
+			chipCount++;
+		}
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);

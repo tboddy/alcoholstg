@@ -478,28 +478,25 @@ const explosions = {
 
 	interval: 4,
 	spawnTime: 12,
-	spawnClock: 0,
 
 	spawn(bullet, big){
-			const explosion = PIXI.Sprite.fromImage('img/explosiona.png');
-			explosion.textureB = PIXI.Texture.fromImage('img/explosionb.png');
-			explosion.textureC = PIXI.Texture.fromImage('img/explosionc.png');
-			explosion.textureD = PIXI.Texture.fromImage('img/explosiond.png');
-			explosion.textureE = PIXI.Texture.fromImage('img/explosione.png');
-			explosion.anchor.set(0.5);
-			explosion.x = bullet.x;
-			explosion.y = bullet.y;
-			explosion.clock = -1;
-			explosion.zIndex = 100;
-			explosion.isExplosion = true;
-			if(big) explosion.scale.set(2);
-			game.stage.addChild(explosion);
-
-			explosions.spawnClock = 1;
-			spawnSound.explosion();
+		const explosion = PIXI.Sprite.fromImage('img/explosiona.png');
+		explosion.textureB = PIXI.Texture.fromImage('img/explosionb.png');
+		explosion.textureC = PIXI.Texture.fromImage('img/explosionc.png');
+		explosion.textureD = PIXI.Texture.fromImage('img/explosiond.png');
+		explosion.textureE = PIXI.Texture.fromImage('img/explosione.png');
+		explosion.anchor.set(0.5);
+		explosion.x = bullet.x;
+		explosion.y = bullet.y;
+		explosion.clock = -1;
+		explosion.zIndex = 100;
+		explosion.isExplosion = true;
+		if(big) explosion.scale.set(2);
+		game.stage.addChild(explosion);
+		spawnSound.explosion();
 	},
 
-	updateExplosion(explosion, i){
+	update(explosion, i){
 		explosion.clock++;
 		const interval = explosion.big ? 6 : 3;
 		if(explosion.clock == interval) explosion.texture = explosion.textureB;
@@ -609,7 +606,6 @@ collision = {
 
 	placeItem(item, index){
 
-		// console.log(item.isPlayer)
 
 		const doPlace = (item, type) => {
 			const x = Math.floor((item.x - gameX) / collision.size),
@@ -641,7 +637,7 @@ collision = {
 							}
 						}
 					}
-				} else if(type == 'bullet' || type == 'enemyBullet' || type == 'player'){
+				} else if(type == 'bullet' || type == 'enemyBullet' || type == 'player' || type == 'chip'){
 					if(collision.sects[y][x - 1]) collision.sects[y][x - 1][type] = index;
 					if(collision.sects[y][x + 1]) collision.sects[y][x + 1][type] = index;
 					if(collision.sects[y - 1]){
@@ -662,7 +658,7 @@ collision = {
 		else if(item.isEnemy) doPlace(item, 'enemy');
 		else if(item.isEnemyBullet) doPlace(item, 'enemyBullet');
 		else if(item.isPlayer) doPlace(item, 'player');
-
+		else if(item.isChip) doPlace(item, 'chip');
 	},
 
 	check(){
@@ -679,6 +675,7 @@ collision = {
 						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
+							chips.spawn(enemy);
 							enemy.y = gameHeight * 2;
 							collision.sects[i][j].enemy = false;
 							player.data.chain++;
@@ -693,39 +690,54 @@ collision = {
 						}
 					}
 				}
-				if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
-					const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
-					if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-						bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-						if(!gameOver) explosions.spawn(bullet, true);
-						bullet.y = -gameHeight;
-						if(player.data.lives - 1){
-							player.data.invulnerableClock = 60 * 3;
-							player.data.lives--;
-						} else if(!gameOver) {
-							gameOver = true;
+				if(collision.sects[i][j].player){
+					if(collision.sects[i][j].enemyBullet && !player.data.invulnerableClock){
+						const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
+						if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+							bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+				      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+				      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+							if(!gameOver) explosions.spawn(bullet, true);
+							bullet.y = -gameHeight;
+							if(player.data.lives - 1){
+								player.data.invulnerableClock = 60 * 3;
+								player.data.lives--;
+							} else if(!gameOver) {
+								gameOver = true;
+							}
+						}
+					}
+					if(collision.sects[i][j].enemy && !player.data.invulnerableClock){
+						const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
+						if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+							enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+				      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+				      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+							if(!gameOver) explosions.spawn(enemy, true);
+							enemy.y = gameHeight * 2;
+							collision.sects[i][j].enemy = false;
+							if(player.data.lives - 1){
+								player.data.invulnerableClock = 60 * 3;
+								player.data.lives--;
+							} else if(!gameOver) {
+								gameOver = true;
+							}
+						}
+					}
+					if(collision.sects[i][j].chip){
+						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
+						// console.log(chip.x + chip.width / 2 >= player.x - player.width / 2)
+						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
+							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
+				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
+				      chip.y - chip.height / 2 <= player.data.y + player.data.height / 2){
+							currentScore += chip.score;
+							chip.y = gameHeight * 2;
+							collision.sects[i][j].score = false;
 						}
 					}
 				}
-				if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
-					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
-					if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-						enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-						if(!gameOver) explosions.spawn(enemy, true);
-						enemy.y = gameHeight * 2;
-						collision.sects[i][j].enemy = false;
-						if(player.data.lives - 1){
-							player.data.invulnerableClock = 60 * 3;
-							player.data.lives--;
-						} else if(!gameOver) {
-							gameOver = true;
-						}
-					}
-				}
+
 			}
 		}
 	},
@@ -771,11 +783,25 @@ collision = {
 const chips = {
 
 	spawn(enemy){
-		console.log(enemy);
+		const chip = PIXI.Sprite.fromImage('img/medal.png');
+		chip.anchor.set(0.5);
+		chip.zIndex = 26;
+		chip.x = enemy.x;
+		chip.y = enemy.y;
+		chip.speedInit = 3.5;
+		chip.speed = chip.speedInit;
+		chip.speedMod = 0.075;
+		chip.isChip = true;
+		chip.scoreBase = 5;
+		chip.score = chip.scoreBase;
+		game.stage.addChild(chip);
 	},
 
 	update(chip, i){
-
+		chip.score = Math.floor((winHeight - chip.y) * chip.scoreBase)
+		chip.y -= chip.speed;
+		if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
+		if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
 	}
 
 };
@@ -2106,11 +2132,12 @@ const player = {
 // player.floatRight.y = player.data.y;
 // player.floatRight.zIndex = 21;
 // game.stage.addChild(player.floatRight);
-let lastEnemyCount = 0, enemyCount = 0, bulletCount = 0;
+let lastEnemyCount = 0, enemyCount = 0, bulletCount = 0, chipCount = 0;
 
 const mainLoop = () => {
 	enemyCount = 0;
 	bulletCount = 0;
+	chipCount = 0;
 
 	game.stage.children.forEach((child, i) => {
 		if(child.isBullet){
@@ -2130,7 +2157,6 @@ const mainLoop = () => {
 			collision.placeItem(child, i);
 			bulletCount++;
 		} else if(child.isPlayer){
-			// console.log('ffff')
 			collision.placeItem(child, i);
 		} else if(child.isFps) chrome.updateFps(child);
 		else if(child.isDrunk) chrome.updateDrunk(child);
@@ -2139,8 +2165,12 @@ const mainLoop = () => {
 		else if(child.isPunk) chrome.updatePunk(child);
 		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isDebug) chrome.updateDebug(child);
-		else if(child.isExplosion) explosions.updateExplosion(child, i);
-		else if(child.isChip) chip.update(child, i);
+		else if(child.isExplosion) explosions.update(child, i);
+		else if(child.isChip){
+			chips.update(child, i);
+			collision.placeItem(child, i);
+			chipCount++;
+		}
 		else if(child.isStart) game.stage.removeChildAt(i)
 		else if(child.isBossBar){
 			chrome.updateBossBar(child);

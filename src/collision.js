@@ -32,7 +32,6 @@ collision = {
 
 	placeItem(item, index){
 
-		// console.log(item.isPlayer)
 
 		const doPlace = (item, type) => {
 			const x = Math.floor((item.x - gameX) / collision.size),
@@ -64,7 +63,7 @@ collision = {
 							}
 						}
 					}
-				} else if(type == 'bullet' || type == 'enemyBullet' || type == 'player'){
+				} else if(type == 'bullet' || type == 'enemyBullet' || type == 'player' || type == 'chip'){
 					if(collision.sects[y][x - 1]) collision.sects[y][x - 1][type] = index;
 					if(collision.sects[y][x + 1]) collision.sects[y][x + 1][type] = index;
 					if(collision.sects[y - 1]){
@@ -85,7 +84,7 @@ collision = {
 		else if(item.isEnemy) doPlace(item, 'enemy');
 		else if(item.isEnemyBullet) doPlace(item, 'enemyBullet');
 		else if(item.isPlayer) doPlace(item, 'player');
-
+		else if(item.isChip) doPlace(item, 'chip');
 	},
 
 	check(){
@@ -102,6 +101,7 @@ collision = {
 						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
+							chips.spawn(enemy);
 							enemy.y = gameHeight * 2;
 							collision.sects[i][j].enemy = false;
 							player.data.chain++;
@@ -116,39 +116,54 @@ collision = {
 						}
 					}
 				}
-				if(collision.sects[i][j].enemyBullet && collision.sects[i][j].player && !player.data.invulnerableClock){
-					const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
-					if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-						bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-						if(!gameOver) explosions.spawn(bullet, true);
-						bullet.y = -gameHeight;
-						if(player.data.lives - 1){
-							player.data.invulnerableClock = 60 * 3;
-							player.data.lives--;
-						} else if(!gameOver) {
-							gameOver = true;
+				if(collision.sects[i][j].player){
+					if(collision.sects[i][j].enemyBullet && !player.data.invulnerableClock){
+						const bullet = game.stage.getChildAt(collision.sects[i][j].enemyBullet);
+						if(bullet.x + bullet.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+							bullet.x - bullet.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+				      bullet.y + bullet.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+				      bullet.y - bullet.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+							if(!gameOver) explosions.spawn(bullet, true);
+							bullet.y = -gameHeight;
+							if(player.data.lives - 1){
+								player.data.invulnerableClock = 60 * 3;
+								player.data.lives--;
+							} else if(!gameOver) {
+								gameOver = true;
+							}
+						}
+					}
+					if(collision.sects[i][j].enemy && !player.data.invulnerableClock){
+						const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
+						if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
+							enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
+				      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
+				      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
+							if(!gameOver) explosions.spawn(enemy, true);
+							enemy.y = gameHeight * 2;
+							collision.sects[i][j].enemy = false;
+							if(player.data.lives - 1){
+								player.data.invulnerableClock = 60 * 3;
+								player.data.lives--;
+							} else if(!gameOver) {
+								gameOver = true;
+							}
+						}
+					}
+					if(collision.sects[i][j].chip){
+						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
+						// console.log(chip.x + chip.width / 2 >= player.x - player.width / 2)
+						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
+							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
+				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
+				      chip.y - chip.height / 2 <= player.data.y + player.data.height / 2){
+							currentScore += chip.score;
+							chip.y = gameHeight * 2;
+							collision.sects[i][j].score = false;
 						}
 					}
 				}
-				if(collision.sects[i][j].enemy && collision.sects[i][j].player && !player.data.invulnerableClock){
-					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy);
-					if(enemy.x + enemy.width / 2 >= player.hitbox.x - player.hitbox.width / 2 &&
-						enemy.x - enemy.height / 2 <= player.hitbox.x + player.hitbox.width / 2 &&
-			      enemy.y + enemy.height / 2 >= player.hitbox.y - player.hitbox.height / 2 &&
-			      enemy.y - enemy.height / 2 <= player.hitbox.y + player.hitbox.height / 2){
-						if(!gameOver) explosions.spawn(enemy, true);
-						enemy.y = gameHeight * 2;
-						collision.sects[i][j].enemy = false;
-						if(player.data.lives - 1){
-							player.data.invulnerableClock = 60 * 3;
-							player.data.lives--;
-						} else if(!gameOver) {
-							gameOver = true;
-						}
-					}
-				}
+
 			}
 		}
 	},
