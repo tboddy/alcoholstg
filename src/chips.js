@@ -37,7 +37,7 @@ const chips = {
 		chipScore.anchor.set(0.5);
 		chipScore.x = chip.x;
 		chipScore.y = chip.y;
-		chipScore.zIndex = 300;
+		chipScore.zIndex = 99;
 		chipScore.isChipScore = true;
 		chipScore.clock = 0;
 		chipScore.limit = 60;
