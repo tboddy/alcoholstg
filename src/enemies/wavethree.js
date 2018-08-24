@@ -29,38 +29,25 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speedMod = 0.025;
 	enemy.health = 15;
 	enemy.score = 7575;
-	enemy.alcohol = true;
+	enemy.clock = 0;
 	game.stage.addChild(enemy);
 },
 
-levelOneFifthDropBullet = enemy => {
-	enemy.fired = true;
-	const bulletX = enemy.x, bulletY = enemy.y;
-	const count = 20, timeout = .4, spawnBullets = angle => {
-		if(enemy.y < winHeight){
-			for(i = 0; i < count; i++){
-				const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
-				const bullet = PIXI.Sprite.fromImage(img);
-				bullet.anchor.set(0.5);
-				bullet.x = bulletX;
-				bullet.y = bulletY;
-				bullet.isEnemyBullet = true;
-				bullet.speed = 2.5;
-				bullet.type = 'fiveDrop';
-				bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
-				game.stage.addChild(bullet);
-				angle += Math.PI / count * 2;
-			}
-			spawnSound.bulletTwo();
-		}
-	};
-	spawnBullets(0);
-	PIXI.setTimeout(timeout, () => {
-		spawnBullets(Math.PI / count);
-	});
-	PIXI.setTimeout(timeout * 2, () => {
-		spawnBullets(0);
-	});
+levelOneFifthDropBullet = (enemy, count, angle) => {
+	for(i = 0; i < count; i++){
+		const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
+		const bullet = PIXI.Sprite.fromImage(img);
+		bullet.anchor.set(0.5);
+		bullet.x = enemy.x;
+		bullet.y = enemy.y;
+		bullet.isEnemyBullet = true;
+		bullet.speed = 2.5;
+		bullet.type = 'fiveDrop';
+		bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
+		game.stage.addChild(bullet);
+		angle += Math.PI / count * 2;
+	}
+	spawnSound.bulletTwo();
 };
 
 enemies.waves.five = () => {
@@ -77,7 +64,12 @@ enemies.update.five = enemy => {
 }
 
 enemies.update.fiveDrop = enemy => {
-	if(enemy.speed < .5 && !enemy.fired) levelOneFifthDropBullet(enemy);
+	if(enemy.speed < .5){
+		const count = 20, interval = 20;
+		if(enemy.clock == 0 || enemy.clock == interval * 2) levelOneFifthDropBullet(enemy, count, 0);
+		else if(enemy.clock == interval) levelOneFifthDropBullet(enemy, count, Math.PI / count);
+		enemy.clock++;
+	}
 	enemy.y += enemy.speed;
 	if(enemy.speed <= enemy.speedLimit && enemy.speed >= -enemy.speedLimit && enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedMod;
 	enemy.rotation = Math.cos(getAngle(enemy, player.data));

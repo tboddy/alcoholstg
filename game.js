@@ -209,13 +209,6 @@ const background = {
 		pos.x = -pos.x;
 		container.proj.setAxisY(pos, -1);
 
-		// background.bgTile = new PIXI.extras.TilingSprite(new PIXI.Texture.fromImage('img/bg.png'));
-		// background.bgTile.width = gameWidth;
-		// background.bgTile.height = gameHeight;
-		// background.bgTile.x = gameX;
-		// background.bgTile.y = gameY;
-		// game.stage.addChild(background.bgTile)
-
 	},
 
 	update(){
@@ -689,12 +682,13 @@ collision = {
 						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
-							chips.spawn(enemy);
+							if(enemy.isBoss){
+								for(r = 0; r < 20; r++) chips.spawn(enemy, true);
+							} else chips.spawn(enemy);
 							enemy.y = gameHeight * 2;
 							collision.sects[i][j].enemy = false;
 							player.data.chain++;
 							player.data.chainTime = 0;
-							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
 							if(enemy.score) currentScore += enemy.score * player.data.punk;
 							if(bossData){
 								PIXI.setTimeout(1, () => {
@@ -717,9 +711,7 @@ collision = {
 								if(player.data.lives - 1){
 									player.data.invulnerableClock = 60 * 3;
 									player.data.lives--;
-								} else if(!gameOver) {
-									gameOver = true;
-								}
+								} else if(!gameOver) gameOver = true;
 							}
 						}
 					}
@@ -736,14 +728,13 @@ collision = {
 								if(player.data.lives - 1){
 									player.data.invulnerableClock = 60 * 3;
 									player.data.lives--;
-								} else if(!gameOver) {
-									gameOver = true;
-								}
+								} else if(!gameOver) gameOver = true;
 							}
 						}
 					}
 					if(collision.sects[i][j].chip){
 						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
+						chip.flipped = true;
 						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
 							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
 				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
@@ -752,6 +743,7 @@ collision = {
 							chips.spawnScore(chip);
 							chip.y = gameHeight * 2;
 							collision.sects[i][j].score = false;
+							player.data.drunk += player.data.drunkDiff;
 						}
 					}
 				}
@@ -799,7 +791,7 @@ collision = {
 }
 const chips = {
 
-	spawn(enemy){
+	spawn(enemy, isBoss){
 		const chip = PIXI.Sprite.fromImage('img/medal.png');
 		chip.anchor.set(0.5);
 		chip.zIndex = 26;
@@ -808,9 +800,15 @@ const chips = {
 		chip.speedInit = 3.5;
 		chip.speed = chip.speedInit;
 		chip.speedMod = 0.075;
+		chip.flipSpeed = chip.speedInit;
+		chip.flipMod = 0.25;
 		chip.isChip = true;
 		chip.scoreBase = 5;
 		chip.score = chip.scoreBase;
+		if(isBoss){
+			chip.x = chip.x - grid + Math.floor(Math.random() * (chip.x + grid));
+			chip.y = chip.y - grid + Math.floor(Math.random() * (chip.y + grid));
+		}
 		game.stage.addChild(chip);
 	},
 
@@ -837,13 +835,21 @@ const chips = {
 
 	update(chip, i){
 		chip.score = Math.floor((winHeight - chip.y) * chip.scoreBase)
-		chip.y -= chip.speed;
-		if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
-		if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
+		if(chip.flipped && chip.y <= gameY + gameHeight + chip.height / 2){
+			const angle = getAngle(chip, player.data);
+			chip.x += -Math.cos(angle) * chip.flipSpeed;
+			chip.y += -Math.sin(angle) * chip.flipSpeed;
+			chip.flipSpeed += chip.flipMod;
+		} else {
+			chip.y -= chip.speed;
+			if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
+			if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
+		}
 	},
 
 	updateScore(chipScore, i){
 		chipScore.clock++;
+		chipScore.y -= 0.75;
 		if(chipScore.clock >= chipScore.limit) game.stage.removeChildAt(i);
 	}
 
@@ -851,7 +857,7 @@ const chips = {
 const enemies = {
 
 	currentWave: false,
-	nextWave: 'bossOne',
+	nextWave: 'one',
 
 	waves: {},
 	update: {},
@@ -1720,38 +1726,25 @@ levelOneFifthDrop = (x, y, opposite) => {
 	enemy.speedMod = 0.025;
 	enemy.health = 15;
 	enemy.score = 7575;
-	enemy.alcohol = true;
+	enemy.clock = 0;
 	game.stage.addChild(enemy);
 },
 
-levelOneFifthDropBullet = enemy => {
-	enemy.fired = true;
-	const bulletX = enemy.x, bulletY = enemy.y;
-	const count = 20, timeout = .4, spawnBullets = angle => {
-		if(enemy.y < winHeight){
-			for(i = 0; i < count; i++){
-				const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
-				const bullet = PIXI.Sprite.fromImage(img);
-				bullet.anchor.set(0.5);
-				bullet.x = bulletX;
-				bullet.y = bulletY;
-				bullet.isEnemyBullet = true;
-				bullet.speed = 2.5;
-				bullet.type = 'fiveDrop';
-				bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
-				game.stage.addChild(bullet);
-				angle += Math.PI / count * 2;
-			}
-			spawnSound.bulletTwo();
-		}
-	};
-	spawnBullets(0);
-	PIXI.setTimeout(timeout, () => {
-		spawnBullets(Math.PI / count);
-	});
-	PIXI.setTimeout(timeout * 2, () => {
-		spawnBullets(0);
-	});
+levelOneFifthDropBullet = (enemy, count, angle) => {
+	for(i = 0; i < count; i++){
+		const img = enemy.opposite ? 'img/bullet-blue-big.png' : 'img/bullet-pink-big.png'
+		const bullet = PIXI.Sprite.fromImage(img);
+		bullet.anchor.set(0.5);
+		bullet.x = enemy.x;
+		bullet.y = enemy.y;
+		bullet.isEnemyBullet = true;
+		bullet.speed = 2.5;
+		bullet.type = 'fiveDrop';
+		bullet.velocity = {x: -Math.cos(angle), y: -Math.sin(angle)};
+		game.stage.addChild(bullet);
+		angle += Math.PI / count * 2;
+	}
+	spawnSound.bulletTwo();
 };
 
 enemies.waves.five = () => {
@@ -1768,7 +1761,12 @@ enemies.update.five = enemy => {
 }
 
 enemies.update.fiveDrop = enemy => {
-	if(enemy.speed < .5 && !enemy.fired) levelOneFifthDropBullet(enemy);
+	if(enemy.speed < .5){
+		const count = 20, interval = 20;
+		if(enemy.clock == 0 || enemy.clock == interval * 2) levelOneFifthDropBullet(enemy, count, 0);
+		else if(enemy.clock == interval) levelOneFifthDropBullet(enemy, count, Math.PI / count);
+		enemy.clock++;
+	}
 	enemy.y += enemy.speed;
 	if(enemy.speed <= enemy.speedLimit && enemy.speed >= -enemy.speedLimit && enemy.y >= gameY - enemy.height / 2) enemy.speed -= enemy.speedMod;
 	enemy.rotation = Math.cos(getAngle(enemy, player.data));
@@ -2124,8 +2122,8 @@ const player = {
 			player.data.shotClock = 0;
 			player.data.shotIntervalInit = 8;
 			player.data.shotInterval = player.data.shotIntervalInit;
-			player.data.drunk = 0;
-			player.data.drunkDiff = 1;
+			player.data.drunk = 100;
+			player.data.drunkDiff = 2;
 			player.data.anchor.set(0.5);
 			player.data.x = gameWidth / 2 + gameX;
 			player.data.y = gameHeight - grid * 3 + gameY;

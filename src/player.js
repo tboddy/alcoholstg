@@ -222,8 +222,8 @@ const player = {
 			player.data.shotClock = 0;
 			player.data.shotIntervalInit = 8;
 			player.data.shotInterval = player.data.shotIntervalInit;
-			player.data.drunk = 0;
-			player.data.drunkDiff = 1;
+			player.data.drunk = 100;
+			player.data.drunkDiff = 2;
 			player.data.anchor.set(0.5);
 			player.data.x = gameWidth / 2 + gameX;
 			player.data.y = gameHeight - grid * 3 + gameY;

@@ -29,13 +29,6 @@ const background = {
 		pos.x = -pos.x;
 		container.proj.setAxisY(pos, -1);
 
-		// background.bgTile = new PIXI.extras.TilingSprite(new PIXI.Texture.fromImage('img/bg.png'));
-		// background.bgTile.width = gameWidth;
-		// background.bgTile.height = gameHeight;
-		// background.bgTile.x = gameX;
-		// background.bgTile.y = gameY;
-		// game.stage.addChild(background.bgTile)
-
 	},
 
 	update(){

@@ -1,6 +1,6 @@
 const chips = {
 
-	spawn(enemy){
+	spawn(enemy, isBoss){
 		const chip = PIXI.Sprite.fromImage('img/medal.png');
 		chip.anchor.set(0.5);
 		chip.zIndex = 26;
@@ -9,9 +9,15 @@ const chips = {
 		chip.speedInit = 3.5;
 		chip.speed = chip.speedInit;
 		chip.speedMod = 0.075;
+		chip.flipSpeed = chip.speedInit;
+		chip.flipMod = 0.25;
 		chip.isChip = true;
 		chip.scoreBase = 5;
 		chip.score = chip.scoreBase;
+		if(isBoss){
+			chip.x = chip.x - grid + Math.floor(Math.random() * (chip.x + grid));
+			chip.y = chip.y - grid + Math.floor(Math.random() * (chip.y + grid));
+		}
 		game.stage.addChild(chip);
 	},
 
@@ -38,13 +44,21 @@ const chips = {
 
 	update(chip, i){
 		chip.score = Math.floor((winHeight - chip.y) * chip.scoreBase)
-		chip.y -= chip.speed;
-		if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
-		if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
+		if(chip.flipped && chip.y <= gameY + gameHeight + chip.height / 2){
+			const angle = getAngle(chip, player.data);
+			chip.x += -Math.cos(angle) * chip.flipSpeed;
+			chip.y += -Math.sin(angle) * chip.flipSpeed;
+			chip.flipSpeed += chip.flipMod;
+		} else {
+			chip.y -= chip.speed;
+			if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
+			if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
+		}
 	},
 
 	updateScore(chipScore, i){
 		chipScore.clock++;
+		chipScore.y -= 0.75;
 		if(chipScore.clock >= chipScore.limit) game.stage.removeChildAt(i);
 	}
 

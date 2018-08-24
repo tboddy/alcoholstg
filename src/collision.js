@@ -101,12 +101,13 @@ collision = {
 						collision.sects[i][j].bullet = false;
 						if(enemy.health) enemy.health--;
 						else {
-							chips.spawn(enemy);
+							if(enemy.isBoss){
+								for(r = 0; r < 20; r++) chips.spawn(enemy, true);
+							} else chips.spawn(enemy);
 							enemy.y = gameHeight * 2;
 							collision.sects[i][j].enemy = false;
 							player.data.chain++;
 							player.data.chainTime = 0;
-							if(enemy.alcohol) player.data.drunk += player.data.drunkDiff;
 							if(enemy.score) currentScore += enemy.score * player.data.punk;
 							if(bossData){
 								PIXI.setTimeout(1, () => {
@@ -129,9 +130,7 @@ collision = {
 								if(player.data.lives - 1){
 									player.data.invulnerableClock = 60 * 3;
 									player.data.lives--;
-								} else if(!gameOver) {
-									gameOver = true;
-								}
+								} else if(!gameOver) gameOver = true;
 							}
 						}
 					}
@@ -148,14 +147,13 @@ collision = {
 								if(player.data.lives - 1){
 									player.data.invulnerableClock = 60 * 3;
 									player.data.lives--;
-								} else if(!gameOver) {
-									gameOver = true;
-								}
+								} else if(!gameOver) gameOver = true;
 							}
 						}
 					}
 					if(collision.sects[i][j].chip){
 						const chip = game.stage.getChildAt(collision.sects[i][j].chip);
+						chip.flipped = true;
 						if(chip.x + chip.width / 2 >= player.data.x - player.data.width / 2 &&
 							chip.x - chip.height / 2 <= player.data.x + player.data.width / 2 &&
 				      chip.y + chip.height / 2 >= player.data.y - player.data.height / 2 &&
@@ -164,6 +162,7 @@ collision = {
 							chips.spawnScore(chip);
 							chip.y = gameHeight * 2;
 							collision.sects[i][j].score = false;
+							player.data.drunk += player.data.drunkDiff;
 						}
 					}
 				}
