@@ -15,8 +15,10 @@ const chips = {
 		chip.scoreBase = 5;
 		chip.score = chip.scoreBase;
 		if(isBoss){
-			chip.x = chip.x - grid + Math.floor(Math.random() * (chip.x + grid));
-			chip.y = chip.y - grid + Math.floor(Math.random() * (chip.y + grid));
+			const chipLeft = enemy.x - enemy.width / 2 - grid, chipRight = enemy.x + enemy.width / 2 + grid,
+				chipTop = enemy.y - enemy.height / 2 - grid, chipBottom = enemy.y + enemy.height / 2 + grid;
+			chip.x = chipLeft + Math.floor(Math.random() * (chipRight - chipLeft))
+			chip.y = chipTop + Math.floor(Math.random() * (chipBottom - chipTop))
 		}
 		game.stage.addChild(chip);
 	},
