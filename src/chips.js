@@ -35,7 +35,7 @@ const chips = {
 		chipScore.anchor.set(0.5);
 		chipScore.x = chip.x;
 		chipScore.y = chip.y;
-		chipScore.zIndex = 999;
+		chipScore.zIndex = 300;
 		chipScore.isChipScore = true;
 		chipScore.clock = 0;
 		chipScore.limit = 60;
@@ -51,6 +51,7 @@ const chips = {
 			chip.flipSpeed += chip.flipMod;
 		} else {
 			chip.y -= chip.speed;
+			chip.rotation += 0.05;
 			if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
 			if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
 		}

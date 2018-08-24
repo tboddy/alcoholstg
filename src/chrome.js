@@ -191,7 +191,7 @@ chrome = {
 			label.anchor.set(0.5);
 			label.x = gameX + gameWidth / 2;
 			label.y = y;
-			label.zIndex = 105;
+			label.zIndex = 666;
 			label.scale.set(2)
 			game.stage.addChild(label);
 		}, main = () => {

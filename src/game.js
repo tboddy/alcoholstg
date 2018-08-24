@@ -32,6 +32,7 @@ const mainLoop = () => {
 		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isExplosion) explosions.update(child, i);
+		else if(child.isBubble) updateBossTwoBubble(child, i);
 		else if(child.isChip){
 			chips.update(child, i);
 			collision.placeItem(child, i);

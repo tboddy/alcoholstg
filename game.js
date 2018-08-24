@@ -414,7 +414,7 @@ chrome = {
 			label.anchor.set(0.5);
 			label.x = gameX + gameWidth / 2;
 			label.y = y;
-			label.zIndex = 105;
+			label.zIndex = 666;
 			label.scale.set(2)
 			game.stage.addChild(label);
 		}, main = () => {
@@ -826,7 +826,7 @@ const chips = {
 		chipScore.anchor.set(0.5);
 		chipScore.x = chip.x;
 		chipScore.y = chip.y;
-		chipScore.zIndex = 999;
+		chipScore.zIndex = 300;
 		chipScore.isChipScore = true;
 		chipScore.clock = 0;
 		chipScore.limit = 60;
@@ -842,6 +842,7 @@ const chips = {
 			chip.flipSpeed += chip.flipMod;
 		} else {
 			chip.y -= chip.speed;
+			chip.rotation += 0.05;
 			if(chip.speed > chip.speedInit * -1) chip.speed -= chip.speedMod;
 			if(chip.y > gameY + gameHeight + chip.height / 2) game.stage.removeChildAt(i);
 		}
@@ -1055,27 +1056,48 @@ const bossOneCardThree = enemy => {
 	}
 
 }
+let bossTwoX = 0, bossTwoY = 0;
+
 enemies.waves.bossTwo = () => {
-	const enemy = PIXI.Sprite.fromImage('img/boss-two.png'), size = 76;
-	enemy.anchor.set(0.5);
-	enemy.isEnemy = true;
-	enemy.type = 'bossTwo';
-	enemy.x = gameX + gameWidth / 2;
-	enemy.y = gameY - size / 2;
-	enemy.score = 100000;
-	enemy.isBoss = true;
-	enemy.health = 400;
-	bossData = enemy.health;
-	enemy.zIndex = 30.05;
-	enemy.speed = 2.65;
-	enemy.speedDiff = 0.03;
-	enemy.clock = 0;
-	enemy.intervalA = 60 * 7;
-	enemy.intervalB = 60 * 6;
-	enemy.intervalC = 60 * 6;
-	game.stage.addChild(enemy);
+	const x = gameX + gameWidth / 2, y = gameY - 76 / 2;
+	const spawnEnemy = () => {
+		const enemy = PIXI.Sprite.fromImage('img/boss-two.png');
+		enemy.anchor.set(0.5);
+		enemy.isEnemy = true;
+		enemy.type = 'bossTwo';
+		enemy.x = x;
+		enemy.y = y;
+		enemy.score = 100000;
+		enemy.isBoss = true;
+		enemy.health = 400;
+		bossData = enemy.health;
+		enemy.zIndex = 30.05;
+		enemy.speed = 2.65;
+		enemy.speedDiff = 0.03;
+		enemy.clock = 0;
+		enemy.intervalA = 60 * 7;
+		enemy.intervalB = 60 * 6;
+		enemy.intervalC = 60 * 6;
+		game.stage.addChild(enemy);
+	}, spawnBubble = (xOffset, yOffset, animOffset) => {
+		const bubble = new PIXI.Sprite();
+		bubble.textureA = PIXI.Texture.fromImage('img/bubblea.png');
+		bubble.textureB = PIXI.Texture.fromImage('img/bubbleb.png');
+		bubble.textureC = PIXI.Texture.fromImage('img/bubblec.png');
+		bubble.textureD = PIXI.Texture.fromImage('img/bubbled.png');
+		bubble.isBubble = true;
+		bubble.zIndex = 30.06;
+		bubble.anchor.set(0.5)
+		bubble.clock = animOffset ? 20 : 0;
+		bubble.xOffset = xOffset;
+		bubble.yOffset = yOffset;
+		game.stage.addChild(bubble);
+	}
+	spawnEnemy();
+	spawnBubble(12, -12);
+	spawnBubble(-14, -10, true);
 	enemies.nextWave = false;
-	spawnSound.bgmFour()
+	spawnSound.bgmFour();
 };
 
 enemies.update.bossTwo = enemy => {
@@ -1092,10 +1114,23 @@ enemies.update.bossTwo = enemy => {
 		enemy.speed -= enemy.speedDiff;
 		if(enemy.speed <= 0) enemy.inPlace = true;
 	}
-	// enemy.rotation = 0
+	bossTwoX = enemy.x;
+	bossTwoY = enemy.y;
 };
 
-const bossTwoCardOne = enemy => {
+const updateBossTwoBubble = bubble => {
+	bubble.x = bossTwoX + bubble.xOffset;
+	bubble.y = bossTwoY + bubble.yOffset;
+	const interval = 10;
+	if(bubble.clock == 0) bubble.texture = bubble.textureA;
+	else if(bubble.clock == interval) bubble.texture = bubble.textureB;
+	else if(bubble.clock == interval * 2) bubble.texture = bubble.textureC;
+	else if(bubble.clock == interval * 3) bubble.texture = bubble.textureD;
+	else if(bubble.clock == interval * 4 - 1) bubble.clock = -1;
+	bubble.clock++;
+},
+
+bossTwoCardOne = enemy => {
 	const gravitySpray = () => {
 		const interval = 30;
 		if(enemy.clock % interval == 0){
@@ -1153,6 +1188,7 @@ const bossTwoCardOne = enemy => {
 			spawnSound.bulletTwo()
 		}
 	};
+	if(enemy.rotation != 0) enemy.rotation = 0;
 	gravitySpray();
 	razor();
 };
@@ -1209,9 +1245,18 @@ const bossTwoCardTwo = (enemy, isAlt) => {
 		limitA = enemy.intervalA + enemy.intervalB + enemy.intervalC + sec
 		limitB = enemy.intervalA + enemy.intervalB + enemy.intervalC + enemy.intervalB - sec;
 	}
-	if(enemy.clock < limitA) enemy.x += isAlt ? -1.5 : 1.5;
-	else if(enemy.clock >= limitA && enemy.clock < limitB) lasers();
-	else if(enemy.clock >= limitB) enemy.x -= isAlt ? -1.5 : 1.5;
+	if(enemy.clock < limitA){
+		enemy.x += isAlt ? -1.5 : 1.5;
+		enemy.rotation = isAlt ? -0.1 : 0.1;
+	}
+	else if(enemy.clock >= limitA && enemy.clock < limitB){
+		lasers();
+		if(enemy.rotation != 0) enemy.rotation = 0;
+	}
+	else if(enemy.clock >= limitB){
+		enemy.x -= isAlt ? -1.5 : 1.5;
+		enemy.rotation = isAlt ? 0.1 : -0.1;
+	}
 };
 
 enemies.bulletUpdate.bossTwoCardTwo = bullet => {
@@ -1225,6 +1270,7 @@ enemies.bulletUpdate.bossTwoCardTwo = bullet => {
 };
 
 const bossTwoCardThree = enemy => {
+	if(enemy.rotation != 0) enemy.rotation = 0;
 	const offset = grid * 3, interval = 60, circle = (x, altTex) => {
 		const count = 90, playerAngle = getAngle({x: x, y: enemy.y}, player.data), aOffset = .1;
 		let angle = playerAngle;
@@ -2218,6 +2264,7 @@ const mainLoop = () => {
 		else if(child.isLives) chrome.updateLives(child);
 		else if(child.isDebug) chrome.updateDebug(child);
 		else if(child.isExplosion) explosions.update(child, i);
+		else if(child.isBubble) updateBossTwoBubble(child, i);
 		else if(child.isChip){
 			chips.update(child, i);
 			collision.placeItem(child, i);
