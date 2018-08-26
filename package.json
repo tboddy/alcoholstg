@@ -1,5 +1,5 @@
 {
-  "name": "final",
+  "name": "alcoholstg",
   "version": "0.0.1",
   "description": "",
   "main": "main.js",
@@ -9,13 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron-json-storage": "^2.1.0",
-    "grunt": "^1.0.1",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-watch": "^1.0.0",
-    "pixi.js": "*"
+    "electron-json-storage": "*",
+    "grunt": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-watch": "*"
   },
   "devDependencies": {
-    "electron": "^1.4.1"
+    "electron": "*"
   }
 }

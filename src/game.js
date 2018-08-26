@@ -74,24 +74,22 @@ startInit = () => {
 gameInit = () => {
 	starting = false;
 	game.ticker.remove(startLoop);
+	sounds.init();
 	background.init();
 	player.init();
 	collision.init();
 	chrome.init();
 	game.ticker.add(mainLoop);
-	spawnSound.bgmTwo()
+	// spawnSound.bgmTwo()
 },
 
 init = () => {
 	storage.get('savedData', (err, data) => {
 		savedData = data;
 		if(savedData.highScore) highScore = savedData.highScore;
-		PIXI.loader.add('crass', 'crass.xml').
-			add('font', 'font.ttf').load(data => {
-			document.body.appendChild(game.view);
-			mapControls();
-			startInit();
-		});
+		document.body.appendChild(game.view);
+		mapControls();
+		startInit();
 	});
 };
 

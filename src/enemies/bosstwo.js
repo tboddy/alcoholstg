@@ -39,7 +39,7 @@ enemies.waves.bossTwo = () => {
 	spawnBubble(12, -12);
 	spawnBubble(-14, -10, true);
 	enemies.nextWave = false;
-	spawnSound.bgmFour();
+	// spawnSound.bgmFour();
 };
 
 enemies.update.bossTwo = enemy => {
@@ -94,7 +94,7 @@ bossTwoCardOne = enemy => {
 				bullet.type = 'bossTwoCardOne';
 				game.stage.addChild(bullet);
 			}
-			spawnSound.bulletTwo()
+			// spawnSound.bulletTwo()
 		}
 	}, razor = () => {
 		const dirClock = enemy.intervalA / 10, count = 5;
@@ -127,7 +127,7 @@ bossTwoCardOne = enemy => {
 				});
 				oAngle += Math.PI / (count / 4);
 			}
-			spawnSound.bulletTwo()
+			// spawnSound.bulletTwo()
 		}
 	};
 	if(enemy.rotation != 0) enemy.rotation = 0;
@@ -179,7 +179,7 @@ const bossTwoCardTwo = (enemy, isAlt) => {
 			fire(lOffsetB, enemy.y + offset, 0);
 			fire(lOffsetB, enemy.y + offset, -1);
 			fire(lOffsetB, enemy.y + offset, -2);
-			spawnSound.bulletThree()
+			// spawnSound.bulletThree()
 		}
 	};
 	let limitA = enemy.intervalA + sec, limitB = enemy.intervalA + enemy.intervalB - sec;
@@ -233,10 +233,10 @@ const bossTwoCardThree = enemy => {
 	};
 	if(enemy.clock % interval == 0){
 		circle(enemy.x - offset);
-		spawnSound.bulletOne()
+		// spawnSound.bulletOne()
 	} else if(enemy.clock % interval == interval / 2){
 		circle(enemy.x + offset, true);
-		spawnSound.bulletOne()
+		// spawnSound.bulletOne()
 	}
 };
 

@@ -1,91 +1,32 @@
-const isMuted = true, bgmVol = 0.175, bgmMuted = false;
+const sounds = {
 
-sounds = {
-	bulletOne: new Howl({src: ['sound/bullet1.wav'], volume: .05}),
-	bulletTwo: new Howl({src: ['sound/bullet2.wav'], volume: .12}),
-	bulletThree: new Howl({src: ['sound/bullet3.wav'], volume: .12}),
-	bulletPlayer: new Howl({src: ['sound/explosion.wav'], volume: .2}),
-	explosion: new Howl({src: ['sound/explosion.wav'], volume: .2}),
-	graze: new Howl({src: ['sound/graze.wav'], volume: 0.1}),
-	bgmOne: new Howl({src: ['sound/bgm-01.mp3'], volume: bgmVol}),
-	bgmTwo: new Howl({src: ['sound/bgm-02.mp3'], loop: true, volume: bgmVol}),
-	bgmThree: new Howl({src: ['sound/bgm-03.mp3'], loop: true, volume: bgmVol}),
-	bgmFour: new Howl({src: ['sound/bgm-04.mp3'], loop: true, volume: bgmVol})
+	muted: true,
+	volume: 1,
+
+	list: {
+		enemyDeath: new Howl({src: ['sound/enemydeath.wav']}),
+		playerShot: new Howl({src: ['sound/playerbullet.wav']}),
+	},
+
+	spawn: {
+		enemyDeath(){
+			if(sounds.list.enemyDeath.playing()) sounds.list.enemyDeath.stop();
+			sounds.list.enemyDeath.play();
+		},
+		playerShot(){
+			if(sounds.list.playerShot.playing()) sounds.list.playerShot.stop();
+			sounds.list.playerShot.play();
+		}
+	},
+
+	init(){
+		const level = sounds.muted ? 0 : sounds.volume;
+		for(sound in sounds.list){
+			sounds.list[sound].volume(level)
+		};
+	}
+
 };
-
-if(isMuted){
-	for(soundName in sounds){
-		sounds[soundName].volume(0);
-	};
-}
-
-const clearBullets = () => {
-	if(sounds.bulletOne.playing()) sounds.bulletOne.stop();
-	if(sounds.bulletTwo.playing()) sounds.bulletTwo.stop();
-	if(sounds.bulletThree.playing()) sounds.bulletThree.stop();
-},
-
-clearBgm = () => {
-	if(sounds.bgmOne.playing()) sounds.bgmOne.stop();
-	if(sounds.bgmTwo.playing()) sounds.bgmTwo.stop();
-	if(sounds.bgmThree.playing()) sounds.bgmThree.stop();
-	if(sounds.bgmFour.playing()) sounds.bgmFour.stop();
-};
-
-spawnSound = {
-
-	bulletOne(){
-		clearBullets()
-		sounds.bulletOne.play();
-	},
-
-	bulletTwo(){
-		clearBullets()
-		sounds.bulletTwo.play();
-	},
-
-	bulletThree(){
-		clearBullets();
-		sounds.bulletThree.play();
-	},
-
-	explosion(){
-		if(sounds.bulletPlayer.playing()) sounds.bulletPlayer.stop();
-		if(sounds.explosion.playing()) sounds.explosion.stop();
-		sounds.explosion.play();
-	},
-
-	graze(){
-		if(sounds.graze.playing()) sounds.graze.stop();
-		sounds.graze.play();
-	},
-
-	bulletPlayer(){
-		if(sounds.bulletPlayer.playing()) sounds.bulletPlayer.stop();
-		sounds.bulletPlayer.play();
-	},
-
-	bgmOne(){
-		clearBgm();
-		if(!bgmMuted) sounds.bgmOne.play();
-	},
-
-	bgmTwo(){
-		clearBgm();
-		if(!bgmMuted) sounds.bgmTwo.play();
-	},
-
-	bgmThree(){
-		clearBgm();
-		if(!bgmMuted) sounds.bgmThree.play();
-	},
-
-	bgmFour(){
-		clearBgm();
-		if(!bgmMuted) sounds.bgmFour.play();
-	},
-
-}
 let currentScore = 0, highScore = 0, bossData = false, wonGame = false, gameOver = false, starting = true;
 
 //gameX = (winWidth - gameWidth) / 2
@@ -500,7 +441,6 @@ const explosions = {
 		if(big) explosion.scale.set(2);
 		else if(bigger) explosion.scale.set(3);
 		game.stage.addChild(explosion);
-		spawnSound.explosion();
 	},
 
 	update(explosion, i){
@@ -575,7 +515,7 @@ const start = {
 
 	init(){
 		start.draw();
-		spawnSound.bgmOne();
+		// spawnSound.bgmOne();
 	}
 
 };
@@ -612,7 +552,6 @@ collision = {
 	},
 
 	placeItem(item, index){
-
 
 		const doPlace = (item, type) => {
 			const x = Math.floor((item.x - gameX) / collision.size),
@@ -669,34 +608,38 @@ collision = {
 	},
 
 	check(){
+
+		const checkPlayerBulletAgainstEnemy = (bullet, enemy, i, j) => {
+			explosions.spawn(bullet);
+			bullet.y = -gameHeight;
+			collision.sects[i][j].bullet = false;
+			if(enemy.health) enemy.health--;
+			else {
+				// spawnSound.enemyDeath();
+				sounds.spawn.enemyDeath();
+				if(enemy.isBoss){
+					for(r = 0; r < 20; r++) chips.spawn(enemy, true);
+				} else chips.spawn(enemy);
+				enemy.y = gameHeight * 2;
+				collision.sects[i][j].enemy = false;
+				player.data.chain++;
+				player.data.chainTime = 0;
+				if(enemy.score) currentScore += enemy.score * player.data.punk;
+				if(bossData){
+					PIXI.setTimeout(1, () => {
+						bossData = false;
+					});
+				}
+			}
+		};
+
 		for(i = 0; i < collision.sects.length; i++){
 			for(j = 0; j < collision.sects[i].length; j++){
 				if(collision.sects[i][j].bullet && collision.sects[i][j].enemy){
 					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy), bullet = game.stage.getChildAt(collision.sects[i][j].bullet);
-					if(
-						bullet.x + bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x - bullet.height / 2 <= enemy.x + enemy.width - enemy.width / 2 &&
+					if(bullet.x + bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x - bullet.height / 2 <= enemy.x + enemy.width - enemy.width / 2 &&
 			      bullet.y + bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y - bullet.height / 2 <= enemy.y + enemy.height - enemy.height / 2 &&
-						bullet.y - bullet.height / 2 > gameY){
-						explosions.spawn(bullet);
-						bullet.y = -gameHeight;
-						collision.sects[i][j].bullet = false;
-						if(enemy.health) enemy.health--;
-						else {
-							if(enemy.isBoss){
-								for(r = 0; r < 20; r++) chips.spawn(enemy, true);
-							} else chips.spawn(enemy);
-							enemy.y = gameHeight * 2;
-							collision.sects[i][j].enemy = false;
-							player.data.chain++;
-							player.data.chainTime = 0;
-							if(enemy.score) currentScore += enemy.score * player.data.punk;
-							if(bossData){
-								PIXI.setTimeout(1, () => {
-									bossData = false;
-								});
-							}
-						}
-					}
+						bullet.y - bullet.height / 2 > gameY) checkPlayerBulletAgainstEnemy(bullet, enemy, i, j);
 				}
 				if(collision.sects[i][j].player){
 					if(collision.sects[i][j].enemyBullet && !player.data.invulnerableClock){
@@ -749,6 +692,7 @@ collision = {
 				}
 			}
 		}
+
 	},
 
 	drawDebug(){
@@ -926,7 +870,7 @@ enemies.waves.bossOne = () => {
 	enemy.intervalC = 60 * 4;
 	game.stage.addChild(enemy);
 	enemies.nextWave = 'seven';
-	spawnSound.bgmThree()
+	// spawnSound.bgmThree()
 };
 
 enemies.update.bossOne = enemy => {
@@ -979,7 +923,7 @@ const bossOneCardOne = enemy => {
 			spawnSub(oAngle, 2)
 			spawnSub(oAngle, 3)
 			spawnSub(oAngle, 4)
-			spawnSound.bulletOne();
+			// spawnSound.bulletOne();
 			oAngle += Math.PI / (count / 2);
 		}
 	}
@@ -1010,7 +954,7 @@ const bossOneCardTwo = enemy => {
 			game.stage.addChild(bullet);
 			angle += Math.PI / (count / 2)
 		}
-		spawnSound.bulletThree();
+		// spawnSound.bulletThree();
 	};
 	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60, rotationTime = 0.005;
 	if(enemy.clock % interval == 0) spawnBullets();
@@ -1054,7 +998,7 @@ const bossOneCardThree = enemy => {
 			game.stage.addChild(bullet);
 		};
 		spawnOBullet();
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 
 }
@@ -1099,7 +1043,7 @@ enemies.waves.bossTwo = () => {
 	spawnBubble(12, -12);
 	spawnBubble(-14, -10, true);
 	enemies.nextWave = false;
-	spawnSound.bgmFour();
+	// spawnSound.bgmFour();
 };
 
 enemies.update.bossTwo = enemy => {
@@ -1154,7 +1098,7 @@ bossTwoCardOne = enemy => {
 				bullet.type = 'bossTwoCardOne';
 				game.stage.addChild(bullet);
 			}
-			spawnSound.bulletTwo()
+			// spawnSound.bulletTwo()
 		}
 	}, razor = () => {
 		const dirClock = enemy.intervalA / 10, count = 5;
@@ -1187,7 +1131,7 @@ bossTwoCardOne = enemy => {
 				});
 				oAngle += Math.PI / (count / 4);
 			}
-			spawnSound.bulletTwo()
+			// spawnSound.bulletTwo()
 		}
 	};
 	if(enemy.rotation != 0) enemy.rotation = 0;
@@ -1239,7 +1183,7 @@ const bossTwoCardTwo = (enemy, isAlt) => {
 			fire(lOffsetB, enemy.y + offset, 0);
 			fire(lOffsetB, enemy.y + offset, -1);
 			fire(lOffsetB, enemy.y + offset, -2);
-			spawnSound.bulletThree()
+			// spawnSound.bulletThree()
 		}
 	};
 	let limitA = enemy.intervalA + sec, limitB = enemy.intervalA + enemy.intervalB - sec;
@@ -1293,10 +1237,10 @@ const bossTwoCardThree = enemy => {
 	};
 	if(enemy.clock % interval == 0){
 		circle(enemy.x - offset);
-		spawnSound.bulletOne()
+		// spawnSound.bulletOne()
 	} else if(enemy.clock % interval == interval / 2){
 		circle(enemy.x + offset, true);
-		spawnSound.bulletOne()
+		// spawnSound.bulletOne()
 	}
 };
 
@@ -1328,7 +1272,7 @@ enemies.waves.seven = () => {
 	spawnEnemy(gameWidth / 5 * 3, yOffset * 2, false);
 	spawnEnemy(gameWidth / 5 * 4, yOffset * 3, true);
 	enemies.nextWave = 'eight';
-	spawnSound.bgmTwo()
+	// spawnSound.bgmTwo()
 };
 
 enemies.update.seven = enemy => {
@@ -1360,7 +1304,7 @@ const waveSevenBullet = enemy => {
 				angle += Math.PI / count * 2;
 			}
 		}
-		spawnSound.bulletOne();
+		// spawnSound.bulletOne();
 	}
 	spawnBullets();
 	PIXI.setTimeout(timeout, spawnBullets);
@@ -1428,7 +1372,7 @@ waveSixDropBullet = (enemy, opposite) => {
 				game.stage.addChild(bullet);
 				angle += Math.PI / count * 2;
 			}
-			spawnSound.bulletThree();
+			// spawnSound.bulletThree();
 		}
 	};
 	const initAngle = opposite ? Math.PI / count : 0;
@@ -1610,11 +1554,11 @@ const waveTenBullet = enemy => {
 	};
 	if(enemy.dropClock < limit){
 		spawnBullet();
-		spawnSound.bulletThree();
+		// spawnSound.bulletThree();
 	} else {
 		spawnBullet(4);
 		spawnBullet(-4);
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 };
 
@@ -1739,7 +1683,7 @@ const waveEightBullet = enemy => {
 			}
 			angle += enemy.opposite ? -(Math.PI / count / 4) : Math.PI / count / 4;
 		}
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 	for(i = 0; i < 8; i++) PIXI.setTimeout(timeout * i, spawnBullets);
 	PIXI.setTimeout(timeout * 2, () => {
@@ -1757,7 +1701,7 @@ const waveEightBullet = enemy => {
 				bullet.type = 'eight';
 				game.stage.addChild(bullet);
 			}
-			spawnSound.bulletTwo();
+			// spawnSound.bulletTwo();
 		};
 		for(i = 0; i < 30; i++) PIXI.setTimeout((timeout) * i, spawnOBullet);
 	})
@@ -1816,7 +1760,7 @@ levelOneFifthDropBullet = (enemy, count, angle) => {
 		game.stage.addChild(bullet);
 		angle += Math.PI / count * 2;
 	}
-	spawnSound.bulletTwo();
+	// spawnSound.bulletTwo();
 };
 
 enemies.waves.five = () => {
@@ -1928,7 +1872,7 @@ levelOneFirstWaveDropBullet = enemy => {
 	doBullet('leftB');
 	doBullet('right');
 	doBullet('rightB');
-	spawnSound.bulletOne();
+	// spawnSound.bulletOne();
 };
 
 enemies.waves.three = () => {
@@ -2133,7 +2077,8 @@ const player = {
 						player.spawnBullet('leftD');
 						player.spawnBullet('rightD');
 					}
-					spawnSound.bulletPlayer();
+					// spawnSound.bulletPlayer();
+					sounds.spawn.playerShot();
 				}
 				player.data.shotClock++;
 			} else if(player.data.shotClock) player.data.shotClock = 0;
@@ -2332,24 +2277,22 @@ startInit = () => {
 gameInit = () => {
 	starting = false;
 	game.ticker.remove(startLoop);
+	sounds.init();
 	background.init();
 	player.init();
 	collision.init();
 	chrome.init();
 	game.ticker.add(mainLoop);
-	spawnSound.bgmTwo()
+	// spawnSound.bgmTwo()
 },
 
 init = () => {
 	storage.get('savedData', (err, data) => {
 		savedData = data;
 		if(savedData.highScore) highScore = savedData.highScore;
-		PIXI.loader.add('crass', 'crass.xml').
-			add('font', 'font.ttf').load(data => {
-			document.body.appendChild(game.view);
-			mapControls();
-			startInit();
-		});
+		document.body.appendChild(game.view);
+		mapControls();
+		startInit();
 	});
 };
 

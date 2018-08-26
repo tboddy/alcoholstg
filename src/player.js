@@ -161,7 +161,8 @@ const player = {
 						player.spawnBullet('leftD');
 						player.spawnBullet('rightD');
 					}
-					spawnSound.bulletPlayer();
+					// spawnSound.bulletPlayer();
+					sounds.spawn.playerShot();
 				}
 				player.data.shotClock++;
 			} else if(player.data.shotClock) player.data.shotClock = 0;

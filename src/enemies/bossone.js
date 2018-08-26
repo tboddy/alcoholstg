@@ -19,7 +19,7 @@ enemies.waves.bossOne = () => {
 	enemy.intervalC = 60 * 4;
 	game.stage.addChild(enemy);
 	enemies.nextWave = 'seven';
-	spawnSound.bgmThree()
+	// spawnSound.bgmThree()
 };
 
 enemies.update.bossOne = enemy => {
@@ -72,7 +72,7 @@ const bossOneCardOne = enemy => {
 			spawnSub(oAngle, 2)
 			spawnSub(oAngle, 3)
 			spawnSub(oAngle, 4)
-			spawnSound.bulletOne();
+			// spawnSound.bulletOne();
 			oAngle += Math.PI / (count / 2);
 		}
 	}
@@ -103,7 +103,7 @@ const bossOneCardTwo = enemy => {
 			game.stage.addChild(bullet);
 			angle += Math.PI / (count / 2)
 		}
-		spawnSound.bulletThree();
+		// spawnSound.bulletThree();
 	};
 	const interval = 15, ySpeed = 3, xSpeed = 1.5, sec = 60, rotationTime = 0.005;
 	if(enemy.clock % interval == 0) spawnBullets();
@@ -147,7 +147,7 @@ const bossOneCardThree = enemy => {
 			game.stage.addChild(bullet);
 		};
 		spawnOBullet();
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 
 }

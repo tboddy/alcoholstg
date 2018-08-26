@@ -32,7 +32,6 @@ collision = {
 
 	placeItem(item, index){
 
-
 		const doPlace = (item, type) => {
 			const x = Math.floor((item.x - gameX) / collision.size),
 				y = Math.floor((item.y - gameY) / collision.size);
@@ -88,34 +87,38 @@ collision = {
 	},
 
 	check(){
+
+		const checkPlayerBulletAgainstEnemy = (bullet, enemy, i, j) => {
+			explosions.spawn(bullet);
+			bullet.y = -gameHeight;
+			collision.sects[i][j].bullet = false;
+			if(enemy.health) enemy.health--;
+			else {
+				// spawnSound.enemyDeath();
+				sounds.spawn.enemyDeath();
+				if(enemy.isBoss){
+					for(r = 0; r < 20; r++) chips.spawn(enemy, true);
+				} else chips.spawn(enemy);
+				enemy.y = gameHeight * 2;
+				collision.sects[i][j].enemy = false;
+				player.data.chain++;
+				player.data.chainTime = 0;
+				if(enemy.score) currentScore += enemy.score * player.data.punk;
+				if(bossData){
+					PIXI.setTimeout(1, () => {
+						bossData = false;
+					});
+				}
+			}
+		};
+
 		for(i = 0; i < collision.sects.length; i++){
 			for(j = 0; j < collision.sects[i].length; j++){
 				if(collision.sects[i][j].bullet && collision.sects[i][j].enemy){
 					const enemy = game.stage.getChildAt(collision.sects[i][j].enemy), bullet = game.stage.getChildAt(collision.sects[i][j].bullet);
-					if(
-						bullet.x + bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x - bullet.height / 2 <= enemy.x + enemy.width - enemy.width / 2 &&
+					if(bullet.x + bullet.width / 2 >= enemy.x - enemy.width / 2 && bullet.x - bullet.height / 2 <= enemy.x + enemy.width - enemy.width / 2 &&
 			      bullet.y + bullet.height / 2 >= enemy.y - enemy.height / 2 && bullet.y - bullet.height / 2 <= enemy.y + enemy.height - enemy.height / 2 &&
-						bullet.y - bullet.height / 2 > gameY){
-						explosions.spawn(bullet);
-						bullet.y = -gameHeight;
-						collision.sects[i][j].bullet = false;
-						if(enemy.health) enemy.health--;
-						else {
-							if(enemy.isBoss){
-								for(r = 0; r < 20; r++) chips.spawn(enemy, true);
-							} else chips.spawn(enemy);
-							enemy.y = gameHeight * 2;
-							collision.sects[i][j].enemy = false;
-							player.data.chain++;
-							player.data.chainTime = 0;
-							if(enemy.score) currentScore += enemy.score * player.data.punk;
-							if(bossData){
-								PIXI.setTimeout(1, () => {
-									bossData = false;
-								});
-							}
-						}
-					}
+						bullet.y - bullet.height / 2 > gameY) checkPlayerBulletAgainstEnemy(bullet, enemy, i, j);
 				}
 				if(collision.sects[i][j].player){
 					if(collision.sects[i][j].enemyBullet && !player.data.invulnerableClock){
@@ -168,6 +171,7 @@ collision = {
 				}
 			}
 		}
+
 	},
 
 	drawDebug(){

@@ -47,7 +47,7 @@ levelOneFifthDropBullet = (enemy, count, angle) => {
 		game.stage.addChild(bullet);
 		angle += Math.PI / count * 2;
 	}
-	spawnSound.bulletTwo();
+	// spawnSound.bulletTwo();
 };
 
 enemies.waves.five = () => {

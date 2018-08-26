@@ -59,7 +59,7 @@ const start = {
 
 	init(){
 		start.draw();
-		spawnSound.bgmOne();
+		// spawnSound.bgmOne();
 	}
 
 };

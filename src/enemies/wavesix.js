@@ -116,7 +116,7 @@ const waveEightBullet = enemy => {
 			}
 			angle += enemy.opposite ? -(Math.PI / count / 4) : Math.PI / count / 4;
 		}
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 	for(i = 0; i < 8; i++) PIXI.setTimeout(timeout * i, spawnBullets);
 	PIXI.setTimeout(timeout * 2, () => {
@@ -134,7 +134,7 @@ const waveEightBullet = enemy => {
 				bullet.type = 'eight';
 				game.stage.addChild(bullet);
 			}
-			spawnSound.bulletTwo();
+			// spawnSound.bulletTwo();
 		};
 		for(i = 0; i < 30; i++) PIXI.setTimeout((timeout) * i, spawnOBullet);
 	})

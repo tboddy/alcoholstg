@@ -78,7 +78,7 @@ levelOneFirstWaveDropBullet = enemy => {
 	doBullet('leftB');
 	doBullet('right');
 	doBullet('rightB');
-	spawnSound.bulletOne();
+	// spawnSound.bulletOne();
 };
 
 enemies.waves.three = () => {

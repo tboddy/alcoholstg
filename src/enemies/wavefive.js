@@ -19,7 +19,7 @@ enemies.waves.seven = () => {
 	spawnEnemy(gameWidth / 5 * 3, yOffset * 2, false);
 	spawnEnemy(gameWidth / 5 * 4, yOffset * 3, true);
 	enemies.nextWave = 'eight';
-	spawnSound.bgmTwo()
+	// spawnSound.bgmTwo()
 };
 
 enemies.update.seven = enemy => {
@@ -51,7 +51,7 @@ const waveSevenBullet = enemy => {
 				angle += Math.PI / count * 2;
 			}
 		}
-		spawnSound.bulletOne();
+		// spawnSound.bulletOne();
 	}
 	spawnBullets();
 	PIXI.setTimeout(timeout, spawnBullets);

@@ -65,11 +65,11 @@ const waveTenBullet = enemy => {
 	};
 	if(enemy.dropClock < limit){
 		spawnBullet();
-		spawnSound.bulletThree();
+		// spawnSound.bulletThree();
 	} else {
 		spawnBullet(4);
 		spawnBullet(-4);
-		spawnSound.bulletTwo();
+		// spawnSound.bulletTwo();
 	}
 };
 

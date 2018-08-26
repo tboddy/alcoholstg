@@ -18,7 +18,6 @@ const explosions = {
 		if(big) explosion.scale.set(2);
 		else if(bigger) explosion.scale.set(3);
 		game.stage.addChild(explosion);
-		spawnSound.explosion();
 	},
 
 	update(explosion, i){
